@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Multi Vendor Marketplace</title>
+<link rel="stylesheet" href="/CSS/style.css">
+</head>
+
+<body>
+
+<!-- HEADER / NAVBAR -->
+
+<header>
+<nav class="navbar">
+<h2>Multi Vendor Marketplace</h2>
+
+
+<a href="/">Home</a>
+<a href="/products">Products</a>
+<a href="/login">Login</a>
+<a href="/register">Register</a>
+<a href="/vendor_login">Become Vendor</a>
+<a href="/cart">Cart</a>
+
+<div style="display:flex; flex-direction:column; align-items:center;">
+    <div class="profile" onclick="toggleProfile()"></div>
+    <span id="username" style="color:white; font-size:14px;"></span>
+</div>
+</nav>
+<div id="profile-menu">
+<a href="/login">Login</a><br>
+<a href="/register">Register</a><br>
+<a href="/vendor_login">Become Vendor</a>
+</div>
+
+
+
+</header>
+
+<hr>
+<section class="hero">
+
+<h2>Shop From Multiple Vendors</h2>
+
+<p>
+Discover amazing products from different sellers in one place.
+</p>
+
+<div class="slider">
+<img src="/images/image1.jpg" id="slide">
+</div>
+
+<a href="/products">
+<button>Shop Now</button>
+</a>
+
+</section>
+
+<hr>
+<section class="categories">
+
+<h2>Shop by Category</h2>
+
+<div class="category-grid">
+
+<div class="category-card">
+<!-- <img src="/static/images/electronics.png"> -->
+<p><a href="/products?category=Electronics">Electronics</a></p>
+</div>
+
+<div class="category-card">
+<!-- <img src="/static/images/clothing.png"> -->
+<p><a href="/products?category=Clothing">Clothing</a></p>
+</div>
+
+<div class="category-card">
+<!-- <img src="/static/images/books.png"> -->
+<p><a href="/products?category=Books">Books</a></p>
+</div>
+
+<div class="category-card">
+<!-- <img src="/static/images/kitchen.png"> -->
+<p><a href="/products?category=Home & Kitchen">Home & Kitchen</a></p>
+</div>
+
+<div class="category-card">
+<!-- <img src="/static/images/accessories.png"> -->
+<p><a href="/products?category=electronics">Accessories</a></p>
+</div>
+
+</div>
+
+</section>
+<hr>
+
+<section>
+<h2>Featured Products</h2>
+<div class="features">
+
+<div class="features" id="product-list"></div>
+
+</section>
+</div>
+
+<hr>
+<footer>
+<p>© 2026 Multi Vendor Marketplace</p>
+</footer>
+<script src="/js/script.js"></script>
+</body>
+
+</html>
