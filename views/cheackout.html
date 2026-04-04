@@ -14,11 +14,11 @@
 
       <!-- 📍 Address -->
       <h2>Shipping Address</h2>
-      <form id="checkoutForm">
-        <input type="text" placeholder="Full Name" required /><br /><br />
-        <input type="text" placeholder="Address" required /><br /><br />
-        <input type="text" placeholder="City" required /><br /><br />
-        <input type="text" placeholder="Pincode" required /><br /><br />
+      <form id="checkoutForm" method="post">
+        <input type="text" name="name" placeholder="Full Name" required /><br /><br />
+        <input type="text" name="address" placeholder="Address" required /><br /><br />
+        <input type="text" name="city" placeholder="City" required /><br /><br />
+        <input type="text" name="pincode" placeholder="Pincode" required /><br /><br />
 
         <!-- 💳 Payment Method -->
         <h2>Payment Method</h2>
