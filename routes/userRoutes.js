@@ -32,5 +32,7 @@ userRoutes.get("/cart", (req, res, next) => {
 userRoutes.get("/checkout", (req, res, next) => {
   res.sendFile(path.join(rootDir, "views", "checkout.html"));
 });
-
+userRoutes.get("/logout", (req, res, next) => {
+  res.sendFile(path.join(rootDir, "views", "login.html"));
+});
 module.exports = userRoutes;
