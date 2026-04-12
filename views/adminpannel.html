@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Admin Panel — Vendra</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #0d0b09;
+      --surface:  #141210;
+      --card:     #1a1714;
+      --card-h:   #1f1c18;
+      --border:   #2a2520;
+      --amber:    #d4843a;
+      --amber-lt: #e8a862;
+      --amber-dk: #a85f1e;
+      --cream:    #f0e8d8;
+      --muted:    #7a7068;
+      --white:    #f8f4ee;
+      --green:    #4caf7d;
+      --red:      #e05;
+      --blue:     #508cf0;
+      --sidebar-w: 230px;
+      --topbar-h:  64px;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --ease: cubic-bezier(.22,.68,0,1.2);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+      min-height: 100vh;
+    }
+
+    .cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
+    .cursor-dot {
+      width: 7px; height: 7px; background: var(--amber);
+      border-radius: 50%; transform: translate(-50%,-50%);
+    }
+    .cursor-ring {
+      position: absolute; top: 0; left: 0;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(212,132,58,.4); border-radius: 50%;
+      transform: translate(-50%,-50%);
+      transition: width .3s var(--ease), height .3s var(--ease), border-color .25s;
+    }
+    body:has(a:hover, button:hover) .cursor-ring { width: 46px; height: 46px; border-color: var(--amber); }
+
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; opacity: .022; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+    /* ═══════ TOPBAR ═══════ */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--topbar-h);
+      background: rgba(13,11,9,.94);
+      backdrop-filter: blur(18px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 2rem 0 calc(var(--sidebar-w) + 2rem);
+      gap: 1rem;
+    }
+    .topbar-brand {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 600;
+      color: var(--cream); letter-spacing: .02em;
+      position: absolute; left: 2rem; text-decoration: none;
+    }
+    .topbar-brand span { color: var(--amber); }
+    .topbar-divider { width: 1px; height: 20px; background: var(--border); }
+    .topbar-page {
+      font-size: .72rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+    .topbar-search {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 7px; padding: .4rem .75rem;
+      transition: border-color .2s;
+    }
+    .topbar-search:focus-within { border-color: rgba(212,132,58,.4); }
+    .topbar-search input {
+      background: none; border: none; outline: none;
+      color: var(--white); font-family: var(--font-body);
+      font-size: .78rem; width: 140px;
+    }
+    .topbar-search input::placeholder { color: var(--muted); }
+    .topbar-search svg { color: var(--muted); flex-shrink: 0; }
+    .topbar-notify {
+      position: relative; width: 34px; height: 34px; border-radius: 8px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); transition: border-color .2s, color .2s;
+    }
+    .topbar-notify:hover { border-color: var(--amber); color: var(--amber); }
+    .notify-dot {
+      position: absolute; top: 6px; right: 7px;
+      width: 6px; height: 6px; background: var(--red);
+      border-radius: 50%; border: 1.5px solid var(--bg);
+    }
+    .topbar-avatar {
+      display: flex; align-items: center; gap: .6rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: .4rem .75rem .4rem .4rem;
+      cursor: pointer; transition: border-color .2s;
+    }
+    .topbar-avatar:hover { border-color: var(--amber); }
+    .avatar-circle {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber-dk), var(--amber));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 700; color: var(--bg);
+    }
+    .avatar-name { font-size: .75rem; font-weight: 500; color: var(--cream); }
+
+    /* ═══════ SHELL ═══════ */
+    .shell { display: flex; min-height: 100vh; padding-top: var(--topbar-h); }
+
+    /* ═══════ SIDEBAR ═══════ */
+    .sidebar {
+      position: fixed; top: var(--topbar-h); left: 0; bottom: 0;
+      width: var(--sidebar-w); background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow-y: auto; overflow-x: hidden; z-index: 100;
+    }
+    .sidebar-header {
+      padding: 1.8rem 1.4rem 1rem; border-bottom: 1px solid var(--border);
+    }
+    .sidebar-label {
+      font-size: .6rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--amber); display: block; margin-bottom: .2rem;
+    }
+    .sidebar-vendor {
+      font-family: var(--font-display); font-size: 1.1rem;
+      font-weight: 400; color: var(--cream);
+    }
+    .admin-role {
+      display: inline-flex; align-items: center; gap: .4rem;
+      margin-top: .6rem; padding: .2rem .6rem;
+      background: rgba(212,132,58,.1); border: 1px solid rgba(212,132,58,.22);
+      border-radius: 100px; font-size: .62rem; color: var(--amber-lt);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .admin-role::before {
+      content: ''; width: 5px; height: 5px;
+      background: var(--amber); border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .sidebar-nav { flex: 1; padding: .8rem 0; }
+    .nav-section-label {
+      font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted); padding: .8rem 1.4rem .4rem;
+    }
+    .menu-link {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.4rem; color: var(--muted); text-decoration: none;
+      font-size: .8rem; font-weight: 400;
+      border-left: 2px solid transparent;
+      transition: color .2s, background .2s, border-color .2s;
+    }
+    .menu-link .nav-icon { width: 18px; text-align: center; font-size: .9rem; flex-shrink: 0; }
+    .menu-link:hover { color: var(--cream); background: rgba(255,255,255,.04); }
+    .menu-link.active {
+      color: var(--amber-lt); border-left-color: var(--amber);
+      background: rgba(212,132,58,.06); font-weight: 500;
+    }
+    .menu-link .nav-badge {
+      margin-left: auto; font-size: .58rem; padding: .1rem .45rem;
+      background: var(--amber); color: var(--bg);
+      border-radius: 100px; font-weight: 700;
+    }
+    .menu-link .nav-badge.red { background: var(--red); color: var(--white); }
+    .sidebar-footer {
+      padding: 1rem 1.4rem; border-top: 1px solid var(--border);
+    }
+    .sidebar-footer a {
+      display: flex; align-items: center; gap: .65rem;
+      color: var(--muted); text-decoration: none; font-size: .78rem;
+      transition: color .2s;
+    }
+    .sidebar-footer a:hover { color: var(--red); }
+
+    /* ═══════ MAIN ═══════ */
+    .main {
+      margin-left: var(--sidebar-w); flex: 1; min-width: 0;
+      padding: 2.5rem 2.5rem 4rem; position: relative; z-index: 1;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .page-title-eyebrow {
+      font-size: .62rem; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--amber);
+      display: block; margin-bottom: .3rem;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 300; line-height: 1; color: var(--cream);
+    }
+    .page-title em { font-style: italic; color: var(--amber); }
+    .header-actions { display: flex; gap: .6rem; }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      padding: .6rem 1.3rem;
+      background: var(--amber); color: var(--bg);
+      border: none; border-radius: 6px;
+      font-family: var(--font-body); font-size: .72rem;
+      font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: .45rem;
+      transition: background .2s, transform .15s var(--ease), box-shadow .2s;
+      box-shadow: 0 6px 20px rgba(212,132,58,.2);
+    }
+    .btn-primary:hover {
+      background: var(--amber-lt); transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(212,132,58,.32);
+    }
+    .btn-ghost {
+      padding: .6rem 1.3rem;
+      background: transparent; color: var(--cream);
+      border: 1px solid var(--border); border-radius: 6px;
+      font-family: var(--font-body); font-size: .72rem;
+      font-weight: 500; letter-spacing: .07em; text-transform: uppercase;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: .45rem;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .btn-ghost:hover { border-color: var(--amber); color: var(--amber); background: rgba(212,132,58,.04); }
+    .btn-sm {
+      padding: .3rem .65rem; background: transparent;
+      border: 1px solid var(--border); border-radius: 5px;
+      font-family: var(--font-body); font-size: .66rem; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      transition: border-color .2s, color .2s, background .2s;
+      display: inline-flex; align-items: center; gap: .3rem;
+    }
+    .btn-sm:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-sm.green:hover { border-color: var(--green); color: var(--green); background: rgba(76,175,125,.06); }
+    .btn-sm.red:hover { border-color: var(--red); color: var(--red); background: rgba(224,0,85,.06); }
+
+    /* ═══════ STAT RIBBON ═══════ */
+    .stat-ribbon {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; margin-bottom: 2rem;
+    }
+    .stat-cell {
+      background: var(--card); padding: 1.6rem 1.4rem;
+      position: relative; overflow: hidden;
+      transition: background .25s;
+    }
+    .stat-cell::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--amber);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .4s var(--ease);
+    }
+    .stat-cell:hover { background: var(--card-h); }
+    .stat-cell:hover::after { transform: scaleX(1); }
+    .stat-cell-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .8rem;
+    }
+    .stat-icon-sm {
+      width: 30px; height: 30px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem;
+    }
+    .stat-icon-sm.amber { background: rgba(212,132,58,.1); border: 1px solid rgba(212,132,58,.18); }
+    .stat-icon-sm.green { background: rgba(76,175,125,.1); border: 1px solid rgba(76,175,125,.18); }
+    .stat-icon-sm.blue  { background: rgba(80,140,240,.1); border: 1px solid rgba(80,140,240,.18); }
+    .stat-icon-sm.red   { background: rgba(224,0,85,.08); border: 1px solid rgba(224,0,85,.15); }
+    .stat-trend {
+      font-size: .62rem; padding: .12rem .4rem; border-radius: 100px;
+      font-weight: 600;
+    }
+    .stat-trend.up { background: rgba(76,175,125,.1); color: var(--green); }
+    .stat-trend.down { background: rgba(224,0,85,.08); color: var(--red); }
+    .stat-label {
+      font-size: .64rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: .25rem;
+    }
+    .stat-value {
+      font-family: var(--font-display); font-size: 1.9rem;
+      font-weight: 600; line-height: 1; color: var(--cream);
+    }
+    .stat-value span { color: var(--amber); }
+
+    /* ═══════ GRID LAYOUTS ═══════ */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .grid-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .grid-2-3 { display: grid; grid-template-columns: 2fr 3fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+    /* ═══════ PANEL ═══════ */
+    .panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .panel-header {
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-title {
+      font-family: var(--font-display); font-size: 1.1rem;
+      font-weight: 400; color: var(--cream);
+    }
+    .panel-title em { font-style: italic; color: var(--amber); }
+    .panel-action {
+      font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--amber); text-decoration: none; transition: color .2s;
+    }
+    .panel-action:hover { color: var(--amber-lt); }
+    .panel-badge {
+      font-size: .58rem; padding: .15rem .5rem; border-radius: 100px;
+      font-weight: 700; letter-spacing: .04em;
+    }
+    .panel-badge.amber { background: rgba(212,132,58,.15); color: var(--amber-lt); }
+    .panel-badge.red { background: rgba(224,0,85,.1); color: var(--red); }
+
+    /* ═══════ ACTIVITY TIMELINE ═══════ */
+    .timeline { padding: 1rem 1.5rem; }
+    .timeline-item {
+      display: flex; gap: 1rem; padding: .85rem 0;
+      border-bottom: 1px solid rgba(42,37,32,.5);
+      position: relative;
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-dot-col {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: .35rem; width: 18px; flex-shrink: 0;
+    }
+    .timeline-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .timeline-dot.amber { background: var(--amber); box-shadow: 0 0 8px rgba(212,132,58,.3); }
+    .timeline-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(76,175,125,.3); }
+    .timeline-dot.blue  { background: var(--blue); box-shadow: 0 0 8px rgba(80,140,240,.3); }
+    .timeline-dot.red   { background: var(--red); box-shadow: 0 0 8px rgba(224,0,85,.3); }
+    .timeline-line {
+      width: 1px; flex: 1; background: var(--border); margin-top: .4rem;
+    }
+    .timeline-content { flex: 1; min-width: 0; }
+    .timeline-text { font-size: .82rem; color: var(--cream); line-height: 1.4; }
+    .timeline-text strong { font-weight: 600; color: var(--amber-lt); }
+    .timeline-time { font-size: .64rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ═══════ VENDOR VERIFICATION CARDS ═══════ */
+    .verify-list { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: .75rem; }
+    .verify-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      transition: border-color .2s, background .2s;
+    }
+    .verify-card:hover { border-color: rgba(212,132,58,.2); background: var(--card); }
+    .verify-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 1rem;
+      font-weight: 600; color: var(--amber);
+    }
+    .verify-info { flex: 1; min-width: 0; }
+    .verify-name { font-size: .88rem; color: var(--cream); font-weight: 500; }
+    .verify-email { font-size: .68rem; color: var(--muted); }
+    .verify-meta {
+      display: flex; gap: .6rem; margin-top: .3rem;
+    }
+    .verify-tag {
+      font-size: .58rem; padding: .1rem .4rem; border-radius: 100px;
+      background: rgba(212,132,58,.08); color: var(--amber);
+      border: 1px solid rgba(212,132,58,.15);
+    }
+    .verify-actions { display: flex; gap: .35rem; flex-shrink: 0; }
+
+    /* ═══════ TOP VENDORS LEADERBOARD ═══════ */
+    .leaderboard { padding: .5rem 0; }
+    .leader-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .85rem 1.5rem; transition: background .2s;
+    }
+    .leader-row:hover { background: rgba(255,255,255,.02); }
+    .leader-rank {
+      width: 26px; height: 26px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; flex-shrink: 0;
+    }
+    .leader-rank.gold { background: rgba(212,132,58,.15); color: var(--amber-lt); border: 1px solid rgba(212,132,58,.25); }
+    .leader-rank.silver { background: rgba(248,244,238,.08); color: var(--cream); border: 1px solid var(--border); }
+    .leader-rank.bronze { background: rgba(168,95,30,.12); color: var(--amber-dk); border: 1px solid rgba(168,95,30,.2); }
+    .leader-rank.plain { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .leader-info { flex: 1; min-width: 0; }
+    .leader-name { font-size: .85rem; color: var(--cream); font-weight: 500; }
+    .leader-detail { font-size: .64rem; color: var(--muted); }
+    .leader-stats { display: flex; gap: 1.2rem; flex-shrink: 0; }
+    .leader-stat-val {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; color: var(--cream); text-align: right;
+    }
+    .leader-stat-label { font-size: .58rem; color: var(--muted); text-align: right; letter-spacing: .04em; }
+
+    /* ═══════ DATA TABLE ═══════ */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      padding: .65rem 1.2rem; font-size: .6rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--muted); text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: .85rem 1.2rem; border-bottom: 1px solid rgba(42,37,32,.5);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr { transition: background .2s; }
+    .data-table tbody tr:hover { background: rgba(255,255,255,.02); }
+    .order-id {
+      font-size: .76rem; color: var(--cream); font-weight: 500;
+      background: var(--surface); padding: .18rem .45rem;
+      border-radius: 4px; border: 1px solid var(--border);
+      display: inline-block;
+    }
+    .order-amount {
+      font-family: var(--font-display); font-size: 1rem;
+      color: var(--amber); font-weight: 600;
+    }
+
+    /* ═══════ STATUS PILLS ═══════ */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .6rem; border-radius: 100px;
+      font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+    }
+    .status-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .pill-pending   { background: rgba(212,132,58,.12); color: var(--amber-lt); border: 1px solid rgba(212,132,58,.2); }
+    .pill-pending::before { background: var(--amber); }
+    .pill-active    { background: rgba(76,175,125,.12); color: var(--green); border: 1px solid rgba(76,175,125,.2); }
+    .pill-active::before { background: var(--green); }
+    .pill-shipped   { background: rgba(80,140,240,.1); color: var(--blue); border: 1px solid rgba(80,140,240,.2); }
+    .pill-shipped::before { background: var(--blue); }
+    .pill-delivered { background: rgba(76,175,125,.12); color: var(--green); border: 1px solid rgba(76,175,125,.2); }
+    .pill-delivered::before { background: var(--green); }
+    .pill-cancelled { background: rgba(224,0,85,.08); color: var(--red); border: 1px solid rgba(224,0,85,.15); }
+    .pill-cancelled::before { background: var(--red); }
+    .pill-flagged   { background: rgba(224,0,85,.08); color: var(--red); border: 1px solid rgba(224,0,85,.15); }
+    .pill-flagged::before { background: var(--red); }
+
+    .table-empty { padding: 3rem 2rem; text-align: center; color: var(--muted); }
+    .table-empty p { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: .3rem; color: var(--cream); }
+
+    /* ═══════ CATEGORY BARS ═══════ */
+    .cat-list { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; }
+    .cat-row {}
+    .cat-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: .35rem;
+    }
+    .cat-name { font-size: .78rem; color: var(--cream); }
+    .cat-val { font-size: .72rem; color: var(--muted); }
+    .cat-bar {
+      height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+    }
+    .cat-fill {
+      height: 100%; border-radius: 2px;
+      transition: width 1s var(--ease);
+    }
+    .cat-fill.amber { background: var(--amber); }
+    .cat-fill.green { background: var(--green); }
+    .cat-fill.blue  { background: var(--blue); }
+    .cat-fill.red   { background: var(--red); }
+
+    /* ═══════ HEALTH BARS ═══════ */
+    .health-grid {
+      padding: 1rem 1.5rem;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem;
+    }
+    .health-item {}
+    .health-top {
+      display: flex; justify-content: space-between; font-size: .7rem;
+      margin-bottom: .4rem;
+    }
+    .health-label { color: var(--muted); }
+    .health-val { font-weight: 600; }
+    .health-val.green { color: var(--green); }
+    .health-val.amber { color: var(--amber); }
+    .health-bar {
+      height: 3px; background: var(--border); border-radius: 2px;
+    }
+    .health-fill {
+      height: 100%; border-radius: 2px; transition: width .8s var(--ease);
+    }
+
+    /* ═══════ TOAST ═══════ */
+    .toast {
+      position: fixed; top: 80px; right: 24px; z-index: 10000;
+      padding: 12px 20px; border-radius: 8px;
+      font-family: var(--font-body); font-size: .8rem; font-weight: 500;
+      color: var(--white); background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 40px -12px rgba(0,0,0,.5);
+      transform: translateX(130%);
+      transition: transform .5s var(--ease);
+      display: flex; align-items: center; gap: 8px; max-width: 340px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-color: rgba(224,0,85,.3); }
+    .toast.error i { color: var(--red); }
+    .toast.success { border-color: rgba(76,175,125,.3); }
+    .toast.success i { color: var(--green); }
+
+    /* ═══════ REVEAL ═══════ */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ═══════ FOOTER ═══════ */
+    footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      position: relative; z-index: 1; margin-left: var(--sidebar-w);
+    }
+    .footer-inner {
+      max-width: 100%; padding: 1.5rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .footer-brand { font-family: var(--font-display); font-size: 1rem; color: var(--cream); }
+    .footer-brand span { color: var(--amber); }
+    .footer-copy { font-size: .68rem; color: var(--muted); }
+
+    /* ═══════ RESPONSIVE ═══════ */
+    @media (max-width: 1200px) { .stat-ribbon { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3-2, .grid-2-3 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-100%); }
+      .stat-ribbon { grid-template-columns: 1fr 1fr; }
+      .main { padding: 1.5rem; }
+      .topbar { padding-left: 2rem; }
+      .topbar-search { display: none; }
+      footer { margin-left: 0; }
+      .health-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- ═══════ TOPBAR ═══════ -->
+  <header class="topbar">
+    <a href="/" class="topbar-brand">Vend<span>◆</span>ra</a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-page">Admin Panel</span>
+
+    <div class="topbar-right">
+      <div class="topbar-search">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+        </svg>
+        <input type="text" placeholder="Search vendors, orders…" />
+      </div>
+
+      <div class="topbar-notify" title="Notifications">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+        </svg>
+        <div class="notify-dot"></div>
+      </div>
+
+      <div class="topbar-avatar">
+        <div class="avatar-circle">A</div>
+        <span class="avatar-name">Admin</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-label">Logged in as</span>
+        <div class="sidebar-vendor">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <a href="/admin" class="menu-link active">
+          <span class="nav-icon">⊞</span> Dashboard
+        </a>
+
+        <div class="nav-section-label" style="margin-top:.5rem">Management</div>
+        <a href="/admin/vendors" class="menu-link">
+          <span class="nav-icon">◫</span> Vendors
+          <span class="nav-badge"><%= pendingVendors.length %></span>
+        </a>
+        <a href="/admin/products" class="menu-link">
+          <span class="nav-icon">国</span> Products
+        </a>
+        <a href="/admin/orders" class="menu-link">
+          <span class="nav-icon">◎</span> Orders
+          <span class="nav-badge red">3</span>
+        </a>
+        <a href="/admin/users" class="menu-link">
+          <span class="nav-icon">◷</span> Users
+        </a>
+
+        <div class="nav-section-label" style="margin-top:.5rem">System</div>
+        <a href="#" class="menu-link">
+          <span class="nav-icon">◈</span> Analytics
+        </a>
+        <a href="#" class="menu-link">
+          <span class="nav-icon">◉</span> Settings
+        </a>
+        <a href="#" class="menu-link">
+          <span class="nav-icon">▣</span> Reports
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="/admin/logout">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </nav>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main class="main">
+
+      <!-- Page Header -->
+      <div class="page-header reveal">
+        <div>
+          <span class="page-title-eyebrow">Command Center</span>
+          <h1 class="page-title">Admin <em>Dashboard</em></h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+            </svg>
+            Export
+          </button>
+          <a href="/admin/vendors" class="btn-primary">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            Add Vendor
+          </a>
+        </div>
+      </div>
+
+      <!-- ═══════ STAT RIBBON ═══════ -->
+      <div class="stat-ribbon reveal">
+        <div class="stat-cell">
+          <div class="stat-cell-top">
+            <div class="stat-icon-sm amber">◫</div>
+            <span class="stat-trend up">+12%</span>
+          </div>
+          <div class="stat-label">Vendors</div>
+          <div class="stat-value"><%= totalVendors %></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-top">
+            <div class="stat-icon-sm blue">国</div>
+            <span class="stat-trend up">+18%</span>
+          </div>
+          <div class="stat-label">Products</div>
+          <div class="stat-value"><%= totalProducts %></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-top">
+            <div class="stat-icon-sm green">◎</div>
+            <span class="stat-trend up">+8%</span>
+          </div>
+          <div class="stat-label">Orders</div>
+          <div class="stat-value"><%= totalOrders %></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-top">
+            <div class="stat-icon-sm amber">₹</div>
+            <span class="stat-trend up">+23%</span>
+          </div>
+          <div class="stat-label">Revenue</div>
+          <div class="stat-value"><span>₹</span><%= totalRevenue %></div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-top">
+            <div class="stat-icon-sm red">◷</div>
+            <span class="stat-trend down">-2%</span>
+          </div>
+          <div class="stat-label">Disputes</div>
+          <div class="stat-value">7</div>
+        </div>
+      </div>
+
+      <!-- ═══════ ACTIVITY + VERIFICATION ═══════ -->
+      <div class="grid-2">
+
+        <!-- Activity Timeline -->
+        <div class="panel reveal">
+          <div class="panel-header">
+            <span class="panel-title">Live <em>Activity</em></span>
+            <span class="panel-badge amber">Live</span>
+          </div>
+          <div class="timeline" id="activity-timeline">
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot amber"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Rohit Gore</strong> applied for a vendor account</div>
+                <div class="timeline-time">2 minutes ago</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot green"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text">Order <strong>#A8F2C301</strong> marked as delivered</div>
+                <div class="timeline-time">8 minutes ago</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot blue"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Priya Stores</strong> listed 5 new products</div>
+                <div class="timeline-time">23 minutes ago</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot red"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text">Product <strong>"Wireless Earbuds Pro"</strong> flagged for review</div>
+                <div class="timeline-time">41 minutes ago</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot green"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Anita Sharma</strong> approved as vendor</div>
+                <div class="timeline-time">1 hour ago</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot amber"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-text">Order <strong>#B3D7E109</strong> payment of <strong>₹2,499</strong> received</div>
+                <div class="timeline-time">1 hour ago</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Vendor Verification Queue -->
+        <div class="panel reveal">
+          <div class="panel-header">
+            <span class="panel-title">Verification <em>Queue</em></span>
+            <span class="panel-badge red"><%= pendingVendors.length %> pending</span>
+          </div>
+          <div class="verify-list" id="verify-list">
+
+            <% if (pendingVendors.length > 0) { %>
+              <% pendingVendors.forEach(vendor => { %>
+              <div class="verify-card" id="vcard-<%= vendor._id %>">
+                <div class="verify-avatar"><%= vendor.name.charAt(0).toUpperCase() %></div>
+                <div class="verify-info">
+                  <div class="verify-name"><%= vendor.name %></div>
+                  <div class="verify-email"><%= vendor.email %></div>
+                  <div class="verify-meta">
+                    <span class="verify-tag"><%= vendor.createdAt %></span>
+                  </div>
+                </div>
+                <div class="verify-actions">
+                  <button class="btn-sm green" onclick="approveVendor('<%= vendor._id %>')">Approve</button>
+                  <button class="btn-sm red" onclick="rejectVendor('<%= vendor._id %>')">Reject</button>
+                </div>
+              </div>
+              <% }) %>
+            <% } else { %>
+              <div class="table-empty" style="padding:2.5rem">
+                <p>All clear</p>
+                <span style="font-size:.8rem">No pending vendor requests</span>
+              </div>
+            <% } %>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════ TOP VENDORS + CATEGORIES ═══════ -->
+      <div class="grid-2">
+
+        <!-- Top Vendors Leaderboard -->
+        <div class="panel reveal">
+          <div class="panel-header">
+            <span class="panel-title">Top <em>Vendors</em></span>
+            <a href="/admin/vendors" class="panel-action">View all →</a>
+          </div>
+          <div class="leaderboard">
+
+            <div class="leader-row">
+              <div class="leader-rank gold">1</div>
+              <div class="leader-info">
+                <div class="leader-name">Priya Stores</div>
+                <div class="leader-detail">Fashion & Accessories</div>
+              </div>
+              <div class="leader-stats">
+                <div>
+                  <div class="leader-stat-val">₹1.2L</div>
+                  <div class="leader-stat-label">Revenue</div>
+                </div>
+                <div>
+                  <div class="leader-stat-val">84</div>
+                  <div class="leader-stat-label">Orders</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="leader-row">
+              <div class="leader-rank silver">2</div>
+              <div class="leader-info">
+                <div class="leader-name">TechHub Electronics</div>
+                <div class="leader-detail">Electronics & Gadgets</div>
+              </div>
+              <div class="leader-stats">
+                <div>
+                  <div class="leader-stat-val">₹98K</div>
+                  <div class="leader-stat-label">Revenue</div>
+                </div>
+                <div>
+                  <div class="leader-stat-val">67</div>
+                  <div class="leader-stat-label">Orders</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="leader-row">
+              <div class="leader-rank bronze">3</div>
+              <div class="leader-info">
+                <div class="leader-name">HomeEssentials</div>
+                <div class="leader-detail">Home & Kitchen</div>
+              </div>
+              <div class="leader-stats">
+                <div>
+                  <div class="leader-stat-val">₹76K</div>
+                  <div class="leader-stat-label">Revenue</div>
+                </div>
+                <div>
+                  <div class="leader-stat-val">52</div>
+                  <div class="leader-stat-label">Orders</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="leader-row">
+              <div class="leader-rank plain">4</div>
+              <div class="leader-info">
+                <div class="leader-name">FreshBasket</div>
+                <div class="leader-detail">Grocery & Gourmet</div>
+              </div>
+              <div class="leader-stats">
+                <div>
+                  <div class="leader-stat-val">₹54K</div>
+                  <div class="leader-stat-label">Revenue</div>
+                </div>
+                <div>
+                  <div class="leader-stat-val">41</div>
+                  <div class="leader-stat-label">Orders</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="leader-row">
+              <div class="leader-rank plain">5</div>
+              <div class="leader-info">
+                <div class="leader-name">BookWorm India</div>
+                <div class="leader-detail">Books & Stationery</div>
+              </div>
+              <div class="leader-stats">
+                <div>
+                  <div class="leader-stat-val">₹38K</div>
+                  <div class="leader-stat-label">Revenue</div>
+                </div>
+                <div>
+                  <div class="leader-stat-val">29</div>
+                  <div class="leader-stat-label">Orders</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="panel reveal">
+          <div class="panel-header">
+            <span class="panel-title">Category <em>Breakdown</em></span>
+          </div>
+          <div class="cat-list">
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Fashion & Accessories</span>
+                <span class="cat-val">234 products · 38%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill amber" style="width:38%"></div></div>
+            </div>
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Electronics & Gadgets</span>
+                <span class="cat-val">189 products · 31%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill blue" style="width:31%"></div></div>
+            </div>
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Home & Kitchen</span>
+                <span class="cat-val">98 products · 16%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill green" style="width:16%"></div></div>
+            </div>
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Books & Stationery</span>
+                <span class="cat-val">54 products · 9%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill amber" style="width:9%"></div></div>
+            </div>
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Grocery & Gourmet</span>
+                <span class="cat-val">28 products · 4%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill green" style="width:4%"></div></div>
+            </div>
+
+            <div class="cat-row">
+              <div class="cat-top">
+                <span class="cat-name">Health & Beauty</span>
+                <span class="cat-val">12 products · 2%</span>
+              </div>
+              <div class="cat-bar"><div class="cat-fill red" style="width:2%"></div></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════ RECENT ORDERS ═══════ -->
+      <div class="panel reveal" style="margin-bottom:1.5rem">
+        <div class="panel-header">
+          <span class="panel-title">Recent <em>Orders</em></span>
+          <a href="/admin/orders" class="panel-action">View all →</a>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% if (recentOrders.length > 0) { %>
+              <% recentOrders.forEach(order => { %>
+              <tr>
+                <td><span class="order-id">#<%= order._id.toString().slice(-8).toUpperCase() %></span></td>
+                <td style="font-size:.82rem;color:var(--cream)"><%= order.customerName || 'Customer' %></td>
+                <td style="font-size:.78rem;color:var(--muted)"><%= order.vendorName || 'Vendor' %></td>
+                <td><span class="order-amount">₹<%= order.totalAmount %></span></td>
+                <td>
+                  <span class="status-pill
+                    <% if (order.status === 'Delivered') { %> pill-delivered
+                    <% } else if (order.status === 'Shipped') { %> pill-shipped
+                    <% } else if (order.status === 'Cancelled') { %> pill-cancelled
+                    <% } else { %> pill-pending
+                    <% } %>
+                  "><%= order.status || 'Processing' %></span>
+                </td>
+                <td style="font-size:.75rem;color:var(--muted)"><%= order.createdAt || '-' %></td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+            <tr>
+              <td colspan="6">
+                <div class="table-empty">
+                  <p>No orders yet</p>
+                  <span style="font-size:.8rem">Orders will appear here as they come in</span>
+                </div>
+              </td>
+            </tr>
+            <% } %>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ═══════ PLATFORM HEALTH ═══════ -->
+      <div class="panel reveal">
+        <div class="panel-header">
+          <span class="panel-title">Platform <em>Health</em></span>
+          <span style="font-size:.68rem;color:var(--green);display:flex;align-items:center;gap:.3rem">
+            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+            All systems operational
+          </span>
+        </div>
+        <div class="health-grid">
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Vendor Approval Rate</span>
+              <span class="health-val green">87%</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:87%;background:var(--green)"></div></div>
+          </div>
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Order Fulfilment</span>
+              <span class="health-val amber">92%</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:92%;background:var(--amber)"></div></div>
+          </div>
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Customer Satisfaction</span>
+              <span class="health-val green">4.7 / 5</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:94%;background:var(--green)"></div></div>
+          </div>
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Dispute Rate</span>
+              <span class="health-val green">2.1%</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:2.1%;min-width:6px;background:var(--green)"></div></div>
+          </div>
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Avg. Delivery Time</span>
+              <span class="health-val amber">3.2 days</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:68%;background:var(--amber)"></div></div>
+          </div>
+          <div class="health-item">
+            <div class="health-top">
+              <span class="health-label">Server Uptime</span>
+              <span class="health-val green">99.8%</span>
+            </div>
+            <div class="health-bar"><div class="health-fill" style="width:99.8%;background:var(--green)"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">Vend<span>◆</span>ra</div>
+      <div class="footer-copy">© 2026 Multi Vendor Marketplace — Admin</div>
+    </div>
+  </footer>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <script>
+    /* ── CURSOR ── */
+    const cursorEl = document.getElementById('cursor');
+    const dot = cursorEl.querySelector('.cursor-dot');
+    const ring = cursorEl.querySelector('.cursor-ring');
+    let mx=0, my=0, rx=0, ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function anim() {
+      dot.style.cssText = `left:${mx}px;top:${my}px`;
+      rx += (mx-rx)*.13; ry += (my-ry)*.13;
+      ring.style.cssText = `left:${rx}px;top:${ry}px`;
+      requestAnimationFrame(anim);
+    })();
+
+    /* ── SCROLL REVEAL ── */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.style.transitionDelay = (i * .06) + 's';
+          e.target.classList.add('in');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: .08 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    /* ── ANIMATE STAT VALUES ── */
+    document.querySelectorAll('.stat-value').forEach(el => {
+      const raw = el.textContent.replace(/[^\d]/g, '');
+      const num = parseInt(raw);
+      if (!num) return;
+      const prefix = el.querySelector('span') ? '₹' : '';
+      let start = 0;
+      const dur = 1200, step = 16;
+      const t = setInterval(() => {
+        start += Math.ceil(num / (dur / step));
+        if (start >= num) { start = num; clearInterval(t); }
+        el.innerHTML = prefix
+          ? `<span>${prefix}</span>${start.toLocaleString('en-IN')}`
+          : start.toLocaleString('en-IN');
+      }, step);
+    });
+
+    /* ── TOAST ── */
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      const m = document.getElementById('toast-msg');
+      m.textContent = msg;
+      t.className = 'toast ' + type;
+      t.querySelector('i').className =
+        type === 'error'
+          ? 'fa-solid fa-circle-xmark'
+          : 'fa-solid fa-circle-check';
+      requestAnimationFrame(() => t.classList.add('show'));
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    /* ── APPROVE VENDOR ── */
+    async function approveVendor(id) {
+      const card = document.getElementById('vcard-' + id);
+      if (card) {
+        card.style.opacity = '.4';
+        card.style.pointerEvents = 'none';
+      }
+      try {
+        const res = await fetch(`/admin/vendors/${id}/approve`, { method: 'PUT' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Vendor approved', 'success');
+          setTimeout(() => location.reload(), 600);
+        } else {
+          showToast(data.message || 'Failed to approve', 'error');
+          if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+        }
+      } catch {
+        showToast('Could not reach the server', 'error');
+        if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+      }
+    }
+
+    /* ── REJECT VENDOR ── */
+    async function rejectVendor(id) {
+      const card = document.getElementById('vcard-' + id);
+      if (card) {
+        card.style.opacity = '.4';
+        card.style.pointerEvents = 'none';
+      }
+      try {
+        const res = await fetch(`/admin/vendors/${id}/reject`, { method: 'PUT' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Vendor rejected', 'success');
+          setTimeout(() => location.reload(), 600);
+        } else {
+          showToast(data.message || 'Failed to reject', 'error');
+          if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+        }
+      } catch {
+        showToast('Could not reach the server', 'error');
+        if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+      }
+    }
+  </script>
+
+  <script src="/JS/dashboard.js"></script>
+</body>
+</html>

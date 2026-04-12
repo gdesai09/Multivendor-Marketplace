@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Vendors — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <%- include('partials/style') %>
+</head>
+<body>
+  <%- include('partials/sidebar', { active: 'vendors' }) %>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <span class="eyebrow">Management</span>
+        <h1 class="page-title">All <em>Vendors</em></h1>
+      </div>
+    </div>
+
+    <div class="panel">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Shop</th>
+            <th>Owner</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Approved</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (vendors.length === 0) { %>
+            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No vendors found</td></tr>
+          <% } %>
+          <% vendors.forEach(v => { %>
+          <tr id="vendor-<%= v._id %>">
+            <td><strong style="color:var(--cream)"><%= v.shopName %></strong></td>
+            <td><%= v.name %></td>
+            <td style="color:var(--muted);font-size:.8rem"><%= v.email %></td>
+            <td>
+              <span class="pill <%= v.isActive ? 'pill-green' : 'pill-red' %>">
+                <%= v.isActive ? 'Active' : 'Suspended' %>
+              </span>
+            </td>
+            <td>
+              <span class="pill <%= v.isApproved ? 'pill-green' : 'pill-amber' %>">
+                <%= v.isApproved ? 'Approved' : 'Pending' %>
+              </span>
+            </td>
+            <td class="actions">
+              <% if (!v.isApproved) { %>
+                <button class="btn-action btn-green" onclick="vendorAction('<%= v._id %>','approve')">Approve</button>
+              <% } %>
+              <% if (v.isActive) { %>
+                <button class="btn-action btn-red" onclick="vendorAction('<%= v._id %>','suspend')">Suspend</button>
+              <% } else { %>
+                <button class="btn-action btn-amber" onclick="vendorAction('<%= v._id %>','reactivate')">Reactivate</button>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    async function vendorAction(id, action) {
+      const res  = await fetch(`/admin/vendors/${id}/${action}`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) window.location.reload();
+    }
+  </script>
+</body>
+</html>

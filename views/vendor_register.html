@@ -1,33 +1,686 @@
 <!doctype html>
-<html>
-  <head>
-    <title>Register Page</title>
-    <link rel="stylesheet" href="/CSS/style.css" />
-  </head>
+<html lang="en">
+<head>
+  <title>Register — Vendra</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <body>
-    <div class="maincontainer">
-      <h2>Register</h2>
+    :root {
+      --bg:       #0d0b09;
+      --surface:  #141210;
+      --card:     #1a1714;
+      --border:   #2a2520;
+      --amber:    #d4843a;
+      --amber-lt: #e8a862;
+      --amber-dk: #a85f1e;
+      --cream:    #f0e8d8;
+      --muted:    #7a7068;
+      --white:    #f8f4ee;
+      --error:    #e05050;
+      --green:    #4caf7d;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'DM Sans', sans-serif;
+      --ease: cubic-bezier(.22,.68,0,1.2);
+    }
 
-      <form action="vendor_register" method="post">
-        <label>Full Name:</label><br />
-        <input type="text" name="name" required /><br />
+    html { scroll-behavior: smooth; }
 
-        <label>Email:</label><br />
-        <input type="email" name="email" required /><br />
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      cursor: none;
+    }
 
-        <label>Password:</label><br />
-        <input type="password" name="password" required /><br />
+    /* ── CURSOR ── */
+    .cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
+    .cursor-dot {
+      width: 7px; height: 7px; background: var(--amber);
+      border-radius: 50%; transform: translate(-50%,-50%);
+    }
+    .cursor-ring {
+      position: absolute; top: 0; left: 0;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(212,132,58,.4); border-radius: 50%;
+      transform: translate(-50%,-50%);
+      transition: width .3s var(--ease), height .3s var(--ease), border-color .25s;
+    }
+    body:has(a:hover, button:hover, input:focus) .cursor-ring {
+      width: 46px; height: 46px; border-color: var(--amber);
+    }
 
-        <label>Confirm Password:</label><br />
-        <input type="password" name="confirm_password" /><br /><br /><br />
+    /* ── GRAIN ── */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; opacity: .022; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
 
-        <button type="submit">Register</button>
-      </form>
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
 
-      <p>Already have an account?</p>
-      <a href="vendor_login.html">Login here</a>
+    /* ══════════════════════════════════════
+       SPLIT LAYOUT
+    ══════════════════════════════════════ */
+    .split-left {
+      flex: 1;
+      position: relative;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 5rem 4rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(212,132,58,.13) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(212,132,58,.07) 0%, transparent 60%),
+        var(--surface);
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* grid lines */
+    .split-left::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(212,132,58,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,132,58,.04) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 90% 80% at 30% 60%, black 20%, transparent 75%);
+    }
+
+    .left-content { position: relative; z-index: 1; max-width: 480px; }
+
+    .left-brand {
+      font-family: var(--font-display); font-size: 1.6rem; font-weight: 600;
+      color: var(--cream); letter-spacing: .02em; text-decoration: none;
+      display: inline-block; margin-bottom: 4rem;
+      animation: fadeUp .7s var(--ease) both;
+    }
+    .left-brand span { color: var(--amber); }
+
+    .left-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(212,132,58,.1); border: 1px solid rgba(212,132,58,.22);
+      border-radius: 100px; padding: .28rem .9rem;
+      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--amber-lt); margin-bottom: 1.2rem;
+      animation: fadeUp .7s .06s var(--ease) both;
+    }
+    .left-eyebrow::before {
+      content: ''; width: 5px; height: 5px;
+      background: var(--amber); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
+
+    .left-heading {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.0; color: var(--cream);
+      margin-bottom: 1.2rem;
+      animation: fadeUp .75s .1s var(--ease) both;
+    }
+    .left-heading em { font-style: italic; color: var(--amber); }
+
+    .left-sub {
+      font-size: .9rem; color: var(--muted); line-height: 1.7;
+      max-width: 360px; margin-bottom: 3rem;
+      animation: fadeUp .75s .15s var(--ease) both;
+    }
+
+    /* feature list */
+    .feature-list {
+      display: flex; flex-direction: column; gap: .85rem;
+      animation: fadeUp .75s .2s var(--ease) both;
+    }
+    .feature-item {
+      display: flex; align-items: center; gap: .85rem;
+      font-size: .82rem; color: var(--muted);
+    }
+    .feature-dot {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+      background: rgba(212,132,58,.1); border: 1px solid rgba(212,132,58,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; color: var(--amber);
+    }
+
+    /* big decorative number */
+    .left-deco {
+      position: absolute; bottom: -2rem; right: -1rem;
+      font-family: var(--font-display);
+      font-size: 14rem; font-weight: 600; line-height: 1;
+      color: rgba(212,132,58,.04); pointer-events: none; user-select: none;
+      letter-spacing: -.05em;
+    }
+
+    /* ══════════════════════════════════════
+       RIGHT — FORM PANEL
+    ══════════════════════════════════════ */
+    .split-right {
+      width: 520px; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 5rem 3.5rem;
+      position: relative; z-index: 1;
+      overflow-y: auto;
+    }
+
+    .form-header {
+      margin-bottom: 2.5rem;
+      animation: fadeUp .7s .05s var(--ease) both;
+    }
+    .form-eyebrow {
+      font-size: .62rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--amber); display: block; margin-bottom: .5rem;
+    }
+    .form-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem; font-weight: 300; color: var(--cream); line-height: 1.1;
+    }
+    .form-title em { font-style: italic; color: var(--amber); }
+    .form-sub {
+      font-size: .8rem; color: var(--muted); margin-top: .5rem;
+    }
+
+    /* ── FORM ── */
+    form { display: flex; flex-direction: column; gap: 0; }
+
+    .field {
+      margin-bottom: 1.2rem;
+      animation: fadeUp .7s var(--ease) both;
+    }
+    .field:nth-child(1) { animation-delay: .08s; }
+    .field:nth-child(2) { animation-delay: .13s; }
+    .field:nth-child(3) { animation-delay: .18s; }
+    .field:nth-child(4) { animation-delay: .23s; }
+
+    label {
+      display: block;
+      font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .5rem; font-weight: 500;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute; left: .95rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none; transition: color .2s;
+      display: flex; align-items: center;
+    }
+    .input-wrap:focus-within .input-icon { color: var(--amber); }
+
+    .input-toggle {
+      position: absolute; right: .95rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; padding: 0;
+      transition: color .2s;
+      display: flex; align-items: center;
+    }
+    .input-toggle:hover { color: var(--amber); }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: .75rem 1rem .75rem 2.6rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: .88rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus {
+      border-color: rgba(212,132,58,.55);
+      background: #1d1a16;
+      box-shadow: 0 0 0 3px rgba(212,132,58,.09);
+    }
+    input.error { border-color: rgba(224,80,80,.5); box-shadow: 0 0 0 3px rgba(224,80,80,.08); }
+    input.valid { border-color: rgba(76,175,125,.4); }
+
+    .field-hint {
+      font-size: .68rem; color: var(--muted);
+      margin-top: .35rem; min-height: 1rem;
+      transition: color .2s;
+    }
+    .field-hint.err { color: var(--error); }
+    .field-hint.ok  { color: var(--green); }
+
+    /* password strength */
+    .strength-bar {
+      display: flex; gap: 3px; margin-top: .45rem;
+    }
+    .strength-seg {
+      flex: 1; height: 3px; border-radius: 2px;
+      background: var(--border);
+      transition: background .3s var(--ease);
+    }
+    .strength-seg.weak   { background: var(--error); }
+    .strength-seg.medium { background: var(--amber); }
+    .strength-seg.strong { background: var(--green); }
+
+    /* ── SUBMIT ── */
+    .btn-submit {
+      width: 100%; padding: .9rem;
+      background: var(--amber); color: var(--bg);
+      border: none; border-radius: 7px;
+      font-family: var(--font-body);
+      font-size: .82rem; font-weight: 700;
+      letter-spacing: .09em; text-transform: uppercase;
+      cursor: pointer; margin-top: .6rem;
+      transition: background .2s, transform .15s var(--ease), box-shadow .2s;
+      box-shadow: 0 6px 22px rgba(212,132,58,.22);
+      position: relative; overflow: hidden;
+      animation: fadeUp .7s .28s var(--ease) both;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      transform: translateX(-100%);
+      transition: transform .5s;
+    }
+    .btn-submit:hover {
+      background: var(--amber-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(212,132,58,.32);
+    }
+    .btn-submit:hover::before { transform: translateX(100%); }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 1.4rem 0;
+      animation: fadeUp .7s .32s var(--ease) both;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .divider span { font-size: .68rem; color: var(--muted); letter-spacing: .08em; white-space: nowrap; }
+
+    /* ── LOGIN LINK ── */
+    .login-row {
+      text-align: center;
+      animation: fadeUp .7s .36s var(--ease) both;
+    }
+    .login-row p { font-size: .82rem; color: var(--muted); }
+    .login-row a {
+      color: var(--amber); text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .login-row a:hover { color: var(--amber-lt); text-decoration: underline; }
+
+    /* ── TERMS ── */
+    .terms-row {
+      font-size: .68rem; color: var(--muted); text-align: center;
+      margin-top: 1.2rem;
+      animation: fadeUp .7s .4s var(--ease) both;
+    }
+    .terms-row a { color: var(--amber); text-decoration: none; }
+    .terms-row a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .split-left { display: none; }
+      .split-right { width: 100%; padding: 3rem 2rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+  <!-- LEFT PANEL -->
+  <div class="split-left">
+    <div class="left-deco">R</div>
+    <div class="left-content">
+      <a href="/" class="left-brand">Vend<span>◆</span>ra</a>
+
+      <div class="left-eyebrow">Join the Marketplace</div>
+
+      <h2 class="left-heading">Start selling<br />with <em>Vendra</em></h2>
+
+      <p class="left-sub">
+        Create your account and become part of a growing community of independent vendors reaching thousands of customers.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-dot">◫</div>
+          List unlimited products for free
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot">◎</div>
+          Manage orders from a single dashboard
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot">₹</div>
+          Get paid directly to your account
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot">◈</div>
+          Real-time sales analytics
+        </div>
+      </div>
     </div>
-    <script src="/js/script.js"></script>
-  </body>
+  </div>
+
+  <!-- RIGHT PANEL — FORM -->
+  <div class="split-right">
+
+    <div class="form-header">
+      <span class="form-eyebrow">New Account</span>
+      <h1 class="form-title">Create your<br /><em>account</em></h1>
+      <p class="form-sub">Fill in the details below to get started.</p>
+    </div>
+
+    <form action="/vendor/register" method="post" id="reg-form" novalidate>
+
+      <div class="field">
+        <label for="name">Full Name</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/>
+            </svg>
+          </span>
+          <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name"
+            oninput="validateName(this)" />
+        </div>
+        <div class="field-hint" id="hint-name"></div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email Address</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
+            </svg>
+          </span>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email"
+            oninput="validateEmail(this)" />
+        </div>
+        <div class="field-hint" id="hint-email"></div>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+            </svg>
+          </span>
+          <input type="password" id="password" name="password" placeholder="Min. 8 characters" required
+            oninput="validatePassword(this)" />
+          <button type="button" class="input-toggle" onclick="toggleVis('password', this)" title="Show/hide">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" id="eye-pw">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="strength-bar" id="strength-bar">
+          <div class="strength-seg" id="seg1"></div>
+          <div class="strength-seg" id="seg2"></div>
+          <div class="strength-seg" id="seg3"></div>
+          <div class="strength-seg" id="seg4"></div>
+        </div>
+        <div class="field-hint" id="hint-password"></div>
+      </div>
+
+      <div class="field">
+        <label for="confirm_password">Confirm Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+          </span>
+          <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat your password"
+            oninput="validateConfirm(this)" />
+            <div class="field">
+  <label for="shopName">Shop Name</label>
+  <div class="input-wrap">
+    <span class="input-icon">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 12 3l9 4.5M4.5 10.5v7.5a1.5 1.5 0 0 0 1.5 1.5H18a1.5 1.5 0 0 0 1.5-1.5v-7.5M9 21v-6h6v6"/>
+      </svg>
+    </span>
+    <input 
+      type="text" 
+      id="shopName" 
+      name="shopName" 
+      placeholder="Your shop name"
+      required
+      oninput="validateShop(this)"
+    />
+  </div>
+  <div class="field-hint" id="hint-shop"></div>
+</div>
+          <button type="button" class="input-toggle" onclick="toggleVis('confirm_password', this)" title="Show/hide">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" id="eye-cp">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="field-hint" id="hint-confirm"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submit-btn">
+        Create Account
+      </button>
+
+    </form>
+
+    <div class="divider"><span>or</span></div>
+
+    <div class="login-row">
+      <p>Already have an account? <a href="/vendor/login">Sign in here</a></p>
+    </div>
+
+    <div class="terms-row">
+      By registering you agree to our
+      <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    </div>
+
+  </div>
+<script>
+  /* ── CURSOR ── */
+  const cursorEl = document.getElementById('cursor');
+  const dot  = cursorEl.querySelector('.cursor-dot');
+  const ring = cursorEl.querySelector('.cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  (function anim() {
+    dot.style.cssText  = `left:${mx}px;top:${my}px`;
+    rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+    ring.style.cssText = `left:${rx}px;top:${ry}px`;
+    requestAnimationFrame(anim);
+  })();
+
+  /* ── TOGGLE PASSWORD VISIBILITY ── */
+  function toggleVis(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.style.color = inp.type === 'text' ? 'var(--amber)' : '';
+  }
+
+  /* ── VALIDATORS ── */
+  function setHint(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'field-hint' + (type ? ' ' + type : '');
+  }
+  function setInputState(inp, state) {
+    inp.classList.remove('error','valid');
+    if (state) inp.classList.add(state);
+  }
+
+  function validateName(inp) {
+    if (inp.value.trim().length < 2) {
+      setHint('hint-name', 'Enter your full name', 'err');
+      setInputState(inp, 'error');
+    } else {
+      setHint('hint-name', '✓ Looks good', 'ok');
+      setInputState(inp, 'valid');
+    }
+  }
+
+  function validateEmail(inp) {
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value);
+    if (!ok && inp.value) {
+      setHint('hint-email', 'Enter a valid email address', 'err');
+      setInputState(inp, 'error');
+    } else if (ok) {
+      setHint('hint-email', '✓ Valid email', 'ok');
+      setInputState(inp, 'valid');
+    } else {
+      setHint('hint-email', '');
+      setInputState(inp, '');
+    }
+  }
+
+  function validatePassword(inp) {
+    const v = inp.value;
+    const s1=document.getElementById('seg1'), s2=document.getElementById('seg2'),
+          s3=document.getElementById('seg3'), s4=document.getElementById('seg4');
+    [s1,s2,s3,s4].forEach(s => s.className='strength-seg');
+
+    let score = 0;
+    if (v.length >= 8)           score++;
+    if (/[A-Z]/.test(v))         score++;
+    if (/[0-9]/.test(v))         score++;
+    if (/[^A-Za-z0-9]/.test(v))  score++;
+
+    const cls = score <= 1 ? 'weak' : score <= 2 ? 'medium' : 'strong';
+    [s1,s2,s3,s4].slice(0, score).forEach(s => s.classList.add(cls));
+
+    if (!v) { setHint('hint-password',''); setInputState(inp,''); return; }
+    if (score <= 1) {
+      setHint('hint-password','Weak — add uppercase, numbers or symbols','err');
+      setInputState(inp,'error');
+    } else if (score <= 2) {
+      setHint('hint-password','Medium strength','');
+      setInputState(inp,'');
+    } else {
+      setHint('hint-password','✓ Strong password','ok');
+      setInputState(inp,'valid');
+    }
+    const cf = document.getElementById('confirm_password');
+    if (cf.value) validateConfirm(cf);
+  }
+
+  function validateConfirm(inp) {
+    const pw = document.getElementById('password').value;
+    if (!inp.value) { setHint('hint-confirm',''); setInputState(inp,''); return; }
+    if (inp.value !== pw) {
+      setHint('hint-confirm','Passwords do not match','err');
+      setInputState(inp,'error');
+    } else {
+      setHint('hint-confirm','✓ Passwords match','ok');
+      setInputState(inp,'valid');
+    }
+  }
+
+  function validateShop(inp) {
+    if (inp.value.trim().length < 2) {
+      setHint('hint-shop', 'Enter your shop name', 'err');
+      setInputState(inp, 'error');
+    } else {
+      setHint('hint-shop', '✓ Looks good', 'ok');
+      setInputState(inp, 'valid');
+    }
+  }
+
+  /* ── ALERT ── */
+  function showAlert(type, message) {
+    document.querySelector('.live-alert')?.remove();
+    if (!document.getElementById('alert-style')) {
+      const s = document.createElement('style');
+      s.id = 'alert-style';
+      s.textContent = `@keyframes slideIn { from { opacity:0; transform:translateY(-12px) } to { opacity:1; transform:translateY(0) } }`;
+      document.head.appendChild(s);
+    }
+    const alert = document.createElement('div');
+    alert.className = 'live-alert';
+    alert.textContent = message;
+    alert.style.cssText = `
+      position:fixed; top:1.5rem; right:1.5rem; z-index:9999;
+      padding:.85rem 1.4rem;
+      background:${type === 'success' ? '#1a2e1f' : '#2e1a1a'};
+      border:1px solid ${type === 'success' ? '#4caf7d' : '#e05050'};
+      color:${type === 'success' ? '#4caf7d' : '#e05050'};
+      border-radius:8px; font-size:.85rem; font-family:'DM Sans',sans-serif;
+      box-shadow:0 8px 28px rgba(0,0,0,.4);
+      animation:slideIn .35s cubic-bezier(.22,.68,0,1.2) both;
+    `;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 4000);
+  }
+
+  /* ── SUBMIT ── */
+  document.getElementById('reg-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = 'Creating account…';
+    btn.style.opacity = '.7';
+    btn.style.pointerEvents = 'none';
+
+    const formData = {
+      name:             document.getElementById('name').value,
+      email:            document.getElementById('email').value,
+      password:         document.getElementById('password').value,
+      confirm_password: document.getElementById('confirm_password').value,
+      shopName:         document.getElementById('shopName').value,
+    };
+
+    try {
+      const res  = await fetch('/vendor/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showAlert('success', '✅ ' + data.message);
+        this.reset();
+      } else {
+        showAlert('error', '❌ ' + (data.message || 'Registration failed'));
+      }
+    } catch (err) {
+      showAlert('error', '❌ Something went wrong. Try again.');
+    } finally {
+      btn.textContent = 'Create Account';
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }
+  });
+</script>
+
+  <script src="/js/script.js"></script>
+</body>
 </html>

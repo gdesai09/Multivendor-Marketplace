@@ -1,112 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Multi Vendor Marketplace</title>
-<link rel="stylesheet" href="/CSS/style.css">
+  <title>Multi Vendor Marketplace</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="/CSS/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 </head>
 
 <body>
 
-<!-- HEADER / NAVBAR -->
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
 
-<header>
-<nav class="navbar">
-<h2>Multi Vendor Marketplace</h2>
+  <!-- HEADER -->
+  <header>
+    <nav class="navbar">
+      <a href="/" class="nav-brand">Vend<span>◆</span>ra</a>
 
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/track">Track Order</a></li>
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/vendor/login" class="cta">Become Vendor</a></li>  <!-- ✅ fixed -->
+      </ul>
 
-<a href="/">Home</a>
-<a href="/products">Products</a>
-<a href="/login">Login</a>
-<a href="/register">Register</a>
-<a href="/vendor_login">Become Vendor</a>
-<a href="/cart">Cart</a>
-<a href="/logOut">Logout</a>
+      <div class="nav-avatar" onclick="toggleProfile()" title="Profile">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+        </svg>
+      </div>
+    </nav>
 
-<div style="display:flex; flex-direction:column; align-items:center;">
-    <div class="profile" onclick="toggleProfile()"></div>
-    <span id="username" style="color:white; font-size:14px;"></span>
-</div>
-</nav>
-<div id="profile-menu">
-<a href="/login">Login</a><br>
-<a href="/register">Register</a><br>
-<a href="/vendor_login">Become Vendor</a>
-</div>
+    <!-- PROFILE DROPDOWN -->
+    <div id="profile-menu">
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+      <a href="/vendor/login">Become Vendor</a>  <!-- ✅ fixed -->
+      <a href="#" onclick="logout()">Log Out</a>
+    </div>
+  </header>
 
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
 
+    <div class="hero-content">
+      <div class="hero-eyebrow">Curated Marketplace</div>
 
-</header>
+      <h1>Shop from<br/><em>Multiple</em> Vendors</h1>
 
-<hr>
-<section class="hero">
+      <p class="hero-sub">
+        Discover extraordinary products from independent sellers — all in one refined destination.
+      </p>
 
-<h2>Shop From Multiple Vendors</h2>
+      <div class="hero-actions">
+        <a href="/products" class="btn-primary">Explore Products</a>
+        <a href="/vendor/login" class="btn-ghost">Sell With Us</a>  <!-- ✅ fixed -->
+      </div>
 
-<p>
-Discover amazing products from different sellers in one place.
-</p>
+      <div class="hero-stats">
+        <div>
+          <span class="stat-num">2<span>K</span>+</span>
+          <span class="stat-label">Vendors</span>
+        </div>
+        <div>
+          <span class="stat-num">48<span>K</span>+</span>
+          <span class="stat-label">Products</span>
+        </div>
+        <div>
+          <span class="stat-num">99<span>%</span></span>
+          <span class="stat-label">Satisfaction</span>
+        </div>
+      </div>
+    </div>
 
-<div class="slider">
-<img src="/images/image1.jpg" id="slide">
-</div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
 
-<a href="/products">
-<button>Shop Now</button>
-</a>
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item">Free Shipping on Orders Above ₹499</div>
+      <div class="marquee-item">Electronics</div>
+      <div class="marquee-item">Clothing & Apparel</div>
+      <div class="marquee-item">Books & Stationery</div>
+      <div class="marquee-item">Home & Kitchen</div>
+      <div class="marquee-item">Accessories</div>
+      <div class="marquee-item">New Vendors Joining Daily</div>
+      <div class="marquee-item">Free Shipping on Orders Above ₹499</div>
+      <div class="marquee-item">Electronics</div>
+      <div class="marquee-item">Clothing & Apparel</div>
+      <div class="marquee-item">Books & Stationery</div>
+      <div class="marquee-item">Home & Kitchen</div>
+      <div class="marquee-item">Accessories</div>
+      <div class="marquee-item">New Vendors Joining Daily</div>
+    </div>
+  </div>
 
-</section>
+  <!-- CATEGORIES -->
+  <section class="categories-section">
+    <div class="section-inner" style="padding:4rem 2rem">
+      <div class="section-header reveal">
+        <div>
+          <span class="section-label">Browse</span>
+          <h2 class="section-title">Shop by <em>Category</em></h2>
+        </div>
+      </div>
+      <div class="category-track reveal">
+        <button class="cat-btn active" onclick="filterCategory(this, '')"><span>All</span></button>
+        <button class="cat-btn" onclick="filterCategory(this, 'Electronics')"><span>Electronics</span></button>
+        <button class="cat-btn" onclick="filterCategory(this, 'Clothing')"><span>Clothing</span></button>
+        <button class="cat-btn" onclick="filterCategory(this, 'Books')"><span>Books</span></button>
+        <button class="cat-btn" onclick="filterCategory(this, 'Home & Kitchen')"><span>Home & Kitchen</span></button>
+        <button class="cat-btn" onclick="filterCategory(this, 'Accessories')"><span>Accessories</span></button>
+      </div>
+    </div>
+  </section>
 
-<hr>
-<section class="categories">
+  <!-- FEATURED PRODUCTS -->
+  <section class="products-section">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <div>
+          <span class="section-label">Handpicked</span>
+          <h2 class="section-title">Featured <em>Products</em></h2>
+        </div>
+        <a href="/products" class="btn-ghost">View All</a>
+      </div>
+      <div id="product-list"></div>
+    </div>
+  </section>
 
-<h2>Shop by Category</h2>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">Vend<span>◆</span>ra</div>
+      <div class="footer-links">
+        <a href="/products">Products</a>
+        <a href="/vendor/login">Vendors</a>  <!-- ✅ fixed -->
+        <a href="/track">Track</a>
+        <a href="/login">Login</a>
+      </div>
+      <div class="footer-copy">© 2026 Multi Vendor Marketplace</div>
+    </div>
+  </footer>
 
-<div class="category-grid">
+  <script src="/js/script.js"></script>
 
-<div class="category-card">
-<!-- <img src="/static/images/electronics.png"> -->
-<p><a href="/products?category=Electronics">Electronics</a></p>
-</div>
+  <script>
+    async function logout() {
+      await fetch("/logout", { method: "GET", credentials: "include" });
+      window.location.href = "/login";
+    }
 
-<div class="category-card">
-<!-- <img src="/static/images/clothing.png"> -->
-<p><a href="/products?category=Clothing">Clothing</a></p>
-</div>
+    let allProducts = [];
 
-<div class="category-card">
-<!-- <img src="/static/images/books.png"> -->
-<p><a href="/products?category=Books">Books</a></p>
-</div>
+    function filterCategory(btn, category) {
+      document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-<div class="category-card">
-<!-- <img src="/static/images/kitchen.png"> -->
-<p><a href="/products?category=Home & Kitchen">Home & Kitchen</a></p>
-</div>
+      const list     = document.getElementById("product-list");
+      const filtered = category === ""
+        ? allProducts
+        : allProducts.filter(p => p.category === category);
 
-<div class="category-card">
-<!-- <img src="/static/images/accessories.png"> -->
-<p><a href="/products?category=electronics">Accessories</a></p>
-</div>
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <p>No products in this category</p>
+            <span>Try a different filter</span>
+          </div>`;
+        return;
+      }
 
-</div>
+      list.innerHTML = "";
+      filtered.forEach(product => {
+        const div = document.createElement("div");
+        div.className = "product-card reveal";
+        div.innerHTML = `
+          <div class="product-img-wrap">
+            ${product.image
+              ? `<img src="${product.image}" alt="${product.name}" loading="lazy"/>`
+              : `<div class="product-img-placeholder">🛍</div>`}
+          </div>
+          <div class="product-cat">${product.category || 'General'}</div>
+          <div class="product-name">${product.name}</div>
+          <div class="product-vendor">by ${product.shopName || 'Vendor'}</div>
+          <div class="product-footer">
+            <span class="product-price">₹${Number(product.price).toLocaleString('en-IN')}</span>
+            <button class="product-add" onclick="handleAddToCart(this,'${product._id}')" title="Add to cart">+</button>
+          </div>`;
+        list.appendChild(div);
+      });
 
-</section>
-<hr>
+      document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
+    }
 
-<section>
-<h2>Featured Products</h2>
-<div class="features">
+    async function loadProducts() {
+      const list = document.getElementById("product-list");
+      if (!list) return;
 
-<div class="features" id="product-list"></div>
+      try {
+        // ✅ use /api/products for JSON response
+        const res      = await fetch("/api/products");
+        const products = await res.json();
 
-</section>
-</div>
+        allProducts = products;
+        filterCategory(document.querySelector(".cat-btn.active"), "");
 
-<hr>
-<footer>
-<p>© 2026 Multi Vendor Marketplace</p>
-</footer>
-<script src="/js/script.js"></script>
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = `<div class="empty-state"><p>Could not load products</p></div>`;
+      }
+    }
+
+    loadProducts();
+  </script>
+
 </body>
-
 </html>

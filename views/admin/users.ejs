@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Users — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <%- include('partials/style') %>
+</head>
+<body>
+  <%- include('partials/sidebar', { active: 'users' }) %>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <span class="eyebrow">Management</span>
+        <h1 class="page-title">All <em>Users</em></h1>
+      </div>
+    </div>
+
+    <div class="panel">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (users.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem">No users found</td></tr>
+          <% } %>
+          <% users.forEach(u => { %>
+          <tr>
+            <td style="color:var(--cream)"><%= u.name %></td>
+            <td style="color:var(--muted);font-size:.8rem"><%= u.email %></td>
+            <td style="color:var(--muted);font-size:.8rem"><%= u.mobile || '—' %></td>
+            <td><span class="pill pill-amber"><%= u.role %></span></td>
+            <td>
+              <span class="pill <%= u.isActive ? 'pill-green' : 'pill-red' %>">
+                <%= u.isActive ? 'Active' : 'Suspended' %>
+              </span>
+            </td>
+            <td style="color:var(--muted);font-size:.78rem">
+              <%= new Date(u.createdAt).toLocaleDateString('en-IN') %>
+            </td>
+            <td class="actions">
+              <% if (u.role !== 'admin') { %>
+                <% if (u.isActive) { %>
+                  <button class="btn-action btn-red" onclick="userAction('<%= u._id %>','suspend')">Suspend</button>
+                <% } else { %>
+                  <button class="btn-action btn-amber" onclick="userAction('<%= u._id %>','reactivate')">Reactivate</button>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    async function userAction(id, action) {
+      const res  = await fetch(`/admin/users/${id}/${action}`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) window.location.reload();
+    }
+  </script>
+</body>
+</html>

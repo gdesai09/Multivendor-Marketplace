@@ -1,0 +1,26 @@
+<div class="shell">
+<aside class="sidebar">
+  <div class="sidebar-brand">Vend<span>◆</span>ra</div>
+  <div class="sidebar-sub">Admin Panel</div>
+
+  <nav class="sidebar-nav">
+    <a href="/admin/dashboard" class="menu-link <%= active==='dashboard' ? 'active':'' %>">
+      <span>⊞</span> Dashboard
+    </a>
+    <a href="/admin/vendors" class="menu-link <%= active==='vendors' ? 'active':'' %>">
+      <span>🏪</span> Vendors
+    </a>
+    <a href="/admin/users" class="menu-link <%= active==='users' ? 'active':'' %>">
+      <span>👥</span> Users
+    </a>
+    <a href="/admin/orders" class="menu-link <%= active==='orders' ? 'active':'' %>">
+      <span>📦</span> Orders
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="/admin/logout">
+      <span>→</span> Logout
+    </a>
+  </div>
+</aside>

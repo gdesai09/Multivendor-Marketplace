@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="/CSS/style.css" />
+  </head>
+  <body>
+    <div class="maincontainer">
+      <h1>Checkout Page</h1>
+
+      <!-- 🧾 Order Summary -->
+      <h2>Order Summary</h2>
+      <div id="cart-items"></div>
+
+      <!-- 📍 Address -->
+      <h2>Shipping Address</h2>
+
+      <!-- ❌ removed form dependency -->
+      <div>
+        <input
+          id="name"
+          type="text"
+          placeholder="Full Name"
+          required
+        /><br /><br />
+        <input
+          id="address"
+          type="text"
+          placeholder="Address"
+          required
+        /><br /><br />
+        <input id="city" type="text" placeholder="City" required /><br /><br />
+        <input
+          id="pincode"
+          type="text"
+          placeholder="Pincode"
+          required
+        /><br /><br />
+
+        <!-- 💳 Payment Method -->
+        <h2>Payment Method</h2>
+        <select id="paymentMethod" onchange="togglePaymentFields()">
+          <option value="">Select Payment</option>
+          <option value="cod">Cash on Delivery</option>
+          <option value="online">Online Payment</option>
+        </select>
+
+        <!-- Online Payment Fields -->
+        <div id="onlineFields" style="display: none">
+          <h3>UPI Payment</h3>
+
+          <input type="text" id="upiId" placeholder="Enter UPI ID" />
+          <button onclick="payViaUPI()">Pay Now</button>
+
+          <h4>OR Scan QR</h4>
+          <img src="/images/upi-qr.png" width="200" />
+        </div>
+
+        <br /><br />
+
+        <!-- 🟢 Place Order -->
+        <button type="button" onclick="confirmOrder()">Confirm Order</button>
+      </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>

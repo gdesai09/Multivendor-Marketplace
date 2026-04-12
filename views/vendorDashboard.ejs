@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Vendor Panel — Vendra</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg:#0d0b09;--surface:#141210;--card:#1a1714;--card-h:#1f1c18;
+      --border:#2a2520;--amber:#d4843a;--amber-lt:#e8a862;--amber-dk:#a85f1e;
+      --cream:#f0e8d8;--muted:#7a7068;--white:#f8f4ee;--green:#4caf7d;
+      --sidebar-w:230px;--topbar-h:64px;
+      --font-display:'Cormorant Garamond',serif;
+      --font-body:'DM Sans',sans-serif;
+      --ease:cubic-bezier(.22,.68,0,1.2);
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:14px;line-height:1.6;overflow-x:hidden;cursor:none;min-height:100vh;}
+    .cursor{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;}
+    .cursor-dot{width:7px;height:7px;background:var(--amber);border-radius:50%;transform:translate(-50%,-50%);}
+    .cursor-ring{position:absolute;top:0;left:0;width:32px;height:32px;border:1px solid rgba(212,132,58,.4);border-radius:50%;transform:translate(-50%,-50%);transition:width .3s var(--ease),height .3s var(--ease),border-color .25s;}
+    body:has(a:hover,button:hover) .cursor-ring{width:46px;height:46px;border-color:var(--amber);}
+    body::before{content:'';position:fixed;inset:0;z-index:0;opacity:.022;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+    ::-webkit-scrollbar{width:3px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--amber);border-radius:2px;}
+
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--topbar-h);background:rgba(13,11,9,.94);backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 2rem 0 calc(var(--sidebar-w) + 2rem);gap:1rem;}
+    .topbar-brand{font-family:var(--font-display);font-size:1.4rem;font-weight:600;color:var(--cream);letter-spacing:.02em;position:absolute;left:2rem;text-decoration:none;}
+    .topbar-brand span{color:var(--amber);}
+    .topbar-divider{width:1px;height:20px;background:var(--border);}
+    .topbar-page{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:1rem;}
+    .topbar-notify{position:relative;width:34px;height:34px;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:border-color .2s,color .2s;}
+    .topbar-notify:hover{border-color:var(--amber);color:var(--amber);}
+    .notify-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;background:var(--amber);border-radius:50%;border:1.5px solid var(--bg);}
+    .topbar-avatar{display:flex;align-items:center;gap:.6rem;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.4rem .75rem .4rem .4rem;cursor:pointer;transition:border-color .2s;}
+    .topbar-avatar:hover{border-color:var(--amber);}
+    .avatar-circle{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--amber-dk),var(--amber));display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--bg);}
+    .avatar-name{font-size:.75rem;font-weight:500;color:var(--cream);}
+
+    .shell{display:flex;min-height:100vh;padding-top:var(--topbar-h);}
+
+    .sidebar{position:fixed;top:var(--topbar-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;z-index:100;}
+    .sidebar-header{padding:1.8rem 1.4rem 1rem;border-bottom:1px solid var(--border);}
+    .sidebar-label{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:.2rem;}
+    .sidebar-vendor{font-family:var(--font-display);font-size:1.1rem;font-weight:400;color:var(--cream);}
+    .vendor-status{display:inline-flex;align-items:center;gap:.4rem;margin-top:.6rem;padding:.2rem .6rem;background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.2);border-radius:100px;font-size:.62rem;color:var(--green);letter-spacing:.06em;text-transform:uppercase;}
+    .vendor-status::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .sidebar-nav{flex:1;padding:.8rem 0;}
+    .nav-section-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:.8rem 1.4rem .4rem;}
+    .menu-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.4rem;color:var(--muted);text-decoration:none;font-size:.8rem;font-weight:400;border-left:2px solid transparent;transition:color .2s,background .2s,border-color .2s;}
+    .menu-link .nav-icon{width:18px;text-align:center;font-size:.9rem;flex-shrink:0;}
+    .menu-link:hover{color:var(--cream);background:rgba(255,255,255,.04);}
+    .menu-link.active{color:var(--amber-lt);border-left-color:var(--amber);background:rgba(212,132,58,.06);font-weight:500;}
+    .menu-link .nav-badge{margin-left:auto;font-size:.58rem;padding:.1rem .45rem;background:var(--amber);color:var(--bg);border-radius:100px;font-weight:700;}
+    .sidebar-footer{padding:1rem 1.4rem;border-top:1px solid var(--border);}
+    .sidebar-footer a{display:flex;align-items:center;gap:.65rem;color:var(--muted);text-decoration:none;font-size:.78rem;transition:color .2s;}
+    .sidebar-footer a:hover{color:#e05;}
+
+    .main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:2.5rem 2.5rem 4rem;position:relative;z-index:1;}
+    .page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;}
+    .page-title-eyebrow{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:.3rem;}
+    .page-title{font-family:var(--font-display);font-size:clamp(1.8rem,3vw,2.8rem);font-weight:300;line-height:1;color:var(--cream);}
+    .page-title em{font-style:italic;color:var(--amber);}
+    .btn-primary{padding:.65rem 1.5rem;background:var(--amber);color:var(--bg);border:none;border-radius:6px;font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:background .2s,transform .15s var(--ease),box-shadow .2s;box-shadow:0 6px 20px rgba(212,132,58,.2);}
+    .btn-primary:hover{background:var(--amber-lt);transform:translateY(-2px);box-shadow:0 10px 28px rgba(212,132,58,.32);}
+
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:2.5rem;}
+    .stat-card{background:var(--card);padding:2rem 1.8rem;position:relative;overflow:hidden;transition:background .25s;}
+    .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),var(--amber-lt));transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);}
+    .stat-card:hover{background:var(--card-h);}
+    .stat-card:hover::after{transform:scaleX(1);}
+    .stat-card::before{content:'';position:absolute;top:-24px;right:-24px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(212,132,58,.08) 0%,transparent 70%);pointer-events:none;}
+    .stat-icon{width:38px;height:38px;border-radius:9px;background:rgba(212,132,58,.1);border:1px solid rgba(212,132,58,.18);display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:1.2rem;}
+    .stat-label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;}
+    .stat-value{font-family:var(--font-display);font-size:2.4rem;font-weight:600;line-height:1;color:var(--cream);}
+    .stat-value span{color:var(--amber);}
+    .stat-change{font-size:.7rem;color:var(--green);margin-top:.5rem;display:flex;align-items:center;gap:.3rem;}
+
+    .lower-grid{display:grid;grid-template-columns:1fr 340px;gap:1.5rem;}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .panel-header{padding:1.3rem 1.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-title{font-family:var(--font-display);font-size:1.15rem;font-weight:400;color:var(--cream);}
+    .panel-action{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);text-decoration:none;transition:color .2s;}
+    .panel-action:hover{color:var(--amber-lt);}
+
+    .product-table{width:100%;border-collapse:collapse;}
+    .product-table th{padding:.7rem 1.2rem;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);}
+    .product-table td{padding:1rem 1.2rem;border-bottom:1px solid rgba(42,37,32,.6);vertical-align:middle;}
+    .product-table tr:last-child td{border-bottom:none;}
+    .product-table tr{transition:background .2s;}
+    .product-table tbody tr:hover{background:rgba(255,255,255,.025);}
+    .prod-thumb{width:44px;height:44px;border-radius:7px;background:var(--surface);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+    .prod-thumb img{width:100%;height:100%;object-fit:cover;}
+    .prod-info{display:flex;align-items:center;gap:.85rem;}
+    .prod-name{font-family:var(--font-display);font-size:1rem;color:var(--cream);font-weight:400;}
+    .prod-cat{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+    .prod-price{font-family:var(--font-display);font-size:1.1rem;color:var(--amber);font-weight:600;}
+    .status-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .65rem;border-radius:100px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+    .status-pill::before{content:'';width:5px;height:5px;border-radius:50%;}
+    .pill-active{background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+    .pill-active::before{background:var(--green);}
+    .prod-edit{background:transparent;border:1px solid var(--border);border-radius:5px;padding:.3rem .7rem;color:var(--muted);font-family:var(--font-body);font-size:.68rem;cursor:pointer;transition:border-color .2s,color .2s;}
+    .prod-edit:hover{border-color:var(--amber);color:var(--amber);}
+    .table-empty{padding:4rem 2rem;text-align:center;color:var(--muted);}
+    .table-empty p{font-family:var(--font-display);font-size:1.3rem;margin-bottom:.3rem;}
+
+    .quick-actions{display:flex;flex-direction:column;}
+    .action-item{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);text-decoration:none;cursor:pointer;transition:background .2s;}
+    .action-item:last-child{border-bottom:none;}
+    .action-item:hover{background:rgba(212,132,58,.05);}
+    .action-icon{width:36px;height:36px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;}
+    .action-icon.amber{background:rgba(212,132,58,.12);border:1px solid rgba(212,132,58,.2);}
+    .action-icon.blue{background:rgba(80,140,240,.1);border:1px solid rgba(80,140,240,.2);}
+    .action-icon.green{background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.2);}
+    .action-icon.red{background:rgba(220,60,60,.1);border:1px solid rgba(220,60,60,.2);}
+    .action-label{font-size:.82rem;color:var(--cream);font-weight:500;}
+    .action-sub{font-size:.68rem;color:var(--muted);}
+    .action-arrow{margin-left:auto;color:var(--border);font-size:.7rem;transition:color .2s,transform .2s var(--ease);}
+    .action-item:hover .action-arrow{color:var(--amber);transform:translateX(3px);}
+
+    .chart-wrap{padding:1.2rem 1.6rem 1.6rem;}
+    .chart-bars{display:flex;align-items:flex-end;gap:5px;height:60px;}
+    .bar{flex:1;border-radius:3px 3px 0 0;background:rgba(212,132,58,.18);transition:background .2s;}
+    .bar.highlight{background:var(--amber);}
+    .bar:hover{background:var(--amber-lt);}
+    .chart-labels{display:flex;justify-content:space-between;margin-top:.5rem;}
+    .chart-labels span{font-size:.58rem;color:var(--muted);letter-spacing:.04em;}
+
+    footer{background:var(--surface);border-top:1px solid var(--border);position:relative;z-index:1;}
+    .footer-inner{max-width:100%;padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .footer-brand{font-family:var(--font-display);font-size:1rem;color:var(--cream);}
+    .footer-brand span{color:var(--amber);}
+    .footer-copy{font-size:.68rem;color:var(--muted);}
+
+    .reveal{opacity:0;transform:translateY(16px);transition:opacity .55s var(--ease),transform .55s var(--ease);}
+    .reveal.in{opacity:1;transform:none;}
+
+    @media(max-width:1024px){.lower-grid{grid-template-columns:1fr;}}
+    @media(max-width:768px){:root{--sidebar-w:0px;}.sidebar{transform:translateX(-100%);}.stat-grid{grid-template-columns:1fr;}.main{padding:1.5rem;}.topbar{padding-left:2rem;}}
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+  <header class="topbar">
+    <a href="/" class="topbar-brand">Vend<span>◆</span>ra</a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-page">Vendor Panel</span>
+    <div class="topbar-right">
+      <div class="topbar-notify" title="Notifications">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+        </svg>
+        <div class="notify-dot"></div>
+      </div>
+      <div class="topbar-avatar">
+        <div class="avatar-circle">V</div>
+        <span class="avatar-name"><%= typeof user !== 'undefined' ? user.shopName : 'Vendor' %></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-label">Logged in as</span>
+        <div class="sidebar-vendor"><%= typeof user !== 'undefined' ? user.shopName : 'My Store' %></div>
+        <div class="vendor-status">Active</div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <a href="/vendor"                class="menu-link active"><span class="nav-icon">⊞</span> Dashboard</a>
+        <a href="/vendor/additem"        class="menu-link"><span class="nav-icon">＋</span> Add Product</a>      <!-- ✅ fixed -->
+        <a href="/vendor/my-products"    class="menu-link"><span class="nav-icon">◫</span> My Products</a>     <!-- ✅ fixed -->
+
+        <div class="nav-section-label" style="margin-top:.5rem">Store</div>
+        <a href="/vendor/orders"         class="menu-link"><span class="nav-icon">◎</span> Orders</a>          <!-- ✅ fixed -->
+        <a href="#"                      class="menu-link"><span class="nav-icon">◷</span> Customers</a>
+        <a href="#"                      class="menu-link"><span class="nav-icon">◈</span> Analytics</a>
+        <a href="#"                      class="menu-link"><span class="nav-icon">◉</span> Settings</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="/vendor/logout">   <!-- ✅ fixed -->
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+          </svg>
+          Log Out
+        </a>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <div class="page-header reveal">
+        <div>
+          <span class="page-title-eyebrow">Overview</span>
+          <h1 class="page-title">Vendor <em>Dashboard</em></h1>
+        </div>
+        <a href="/vendor/additem" class="btn-primary">   <!-- ✅ fixed -->
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          Add Product
+        </a>
+      </div>
+
+      <div class="stat-grid reveal">
+        <div class="stat-card">
+          <div class="stat-icon">◫</div>
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value"><%= totalProducts %></div>
+          <div class="stat-change">↑ 12% this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">◎</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value"><%= totalOrders %></div>
+          <div class="stat-change">↑ 8% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">₹</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value"><span>₹</span><%= totalRevenue %></div>
+          <div class="stat-change">↑ 23% this month</div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+
+        <div class="panel reveal">
+          <div class="panel-header">
+            <span class="panel-title">Recent <em style="font-style:italic;color:var(--amber)">Products</em></span>
+            <a href="/vendor/my-products" class="panel-action">View all →</a>   <!-- ✅ fixed -->
+          </div>
+
+          <div class="chart-wrap">
+            <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">Revenue (7 days)</div>
+            <div class="chart-bars">
+              <div class="bar" style="height:35%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar highlight" style="height:100%"></div>
+            </div>
+            <div class="chart-labels">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </div>
+
+          <table class="product-table">
+            <thead>
+              <tr>
+                <th>Product</th><th>Price</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (recentProducts.length > 0) { %>
+                <% recentProducts.forEach(product => { %>
+                <tr>
+                  <td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">
+                        <% if (product.image) { %>
+                          <img src="<%= product.image %>" alt="<%= product.name %>" />
+                        <% } else { %>
+                          🛍
+                        <% } %>
+                      </div>
+                      <div>
+                        <div class="prod-name"><%= product.name %></div>
+                        <div class="prod-cat"><%= product.category || 'General' %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="prod-price">₹<%= product.price %></span></td>
+                  <td><span class="status-pill pill-active">Active</span></td>
+                  <td><button class="prod-edit" onclick="window.location.href='/vendor/edit-product/<%= product._id %>'">Edit</button></td>
+                </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="4">
+                    <div class="table-empty">
+                      <p>No products yet</p>
+                      <span style="font-size:.8rem">Add your first product to get started</span>
+                    </div>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="panel reveal" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <span class="panel-title">Quick Actions</span>
+            </div>
+            <div class="quick-actions">
+              <a href="/vendor/additem" class="action-item">       <!-- ✅ fixed -->
+                <div class="action-icon amber">＋</div>
+                <div><div class="action-label">Add Product</div><div class="action-sub">List a new item</div></div>
+                <span class="action-arrow">›</span>
+              </a>
+              <a href="/vendor/my-products" class="action-item">   <!-- ✅ fixed -->
+                <div class="action-icon blue">◫</div>
+                <div><div class="action-label">Manage Products</div><div class="action-sub">Edit or remove listings</div></div>
+                <span class="action-arrow">›</span>
+              </a>
+              <a href="/vendor/orders" class="action-item">        <!-- ✅ fixed -->
+                <div class="action-icon green">◎</div>
+                <div><div class="action-label">View Orders</div><div class="action-sub">Manage your orders</div></div>
+                <span class="action-arrow">›</span>
+              </a>
+              <a href="/vendor/logout" class="action-item">        <!-- ✅ fixed -->
+                <div class="action-icon red">→</div>
+                <div><div class="action-label">Log Out</div><div class="action-sub">End session</div></div>
+                <span class="action-arrow">›</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="panel reveal">
+            <div class="panel-header">
+              <span class="panel-title">Store Health</span>
+            </div>
+            <div style="padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.4rem">
+                  <span style="color:var(--muted)">Profile Complete</span>
+                  <span style="color:var(--amber)">80%</span>
+                </div>
+                <div style="height:3px;background:var(--border);border-radius:2px">
+                  <div style="width:80%;height:100%;background:var(--amber);border-radius:2px"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.4rem">
+                  <span style="color:var(--muted)">Order Fulfilment</span>
+                  <span style="color:var(--green)">96%</span>
+                </div>
+                <div style="height:3px;background:var(--border);border-radius:2px">
+                  <div style="width:96%;height:100%;background:var(--green);border-radius:2px"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.4rem">
+                  <span style="color:var(--muted)">Customer Rating</span>
+                  <span style="color:var(--amber-lt)">4.7 / 5</span>
+                </div>
+                <div style="height:3px;background:var(--border);border-radius:2px">
+                  <div style="width:94%;height:100%;background:var(--amber-lt);border-radius:2px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Update Panel -->
+          <div class="panel reveal" style="margin-top:1.5rem">
+            <div class="panel-header">
+              <span class="panel-title">Update <em style="font-style:italic;color:var(--amber)">Tracking</em></span>
+            </div>
+            <div style="padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem">
+              <div>
+                <label style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.4rem">Order ID</label>
+                <input id="trackOrderId" type="text" placeholder="Paste order ID..."
+                  style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.55rem .8rem;color:var(--white);font-family:var(--font-body);font-size:.8rem;outline:none"/>
+              </div>
+              <div>
+                <label style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.4rem">Status</label>
+                <select id="trackStatus"
+                  style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.55rem .8rem;color:var(--white);font-family:var(--font-body);font-size:.8rem;outline:none">
+                  <option value="">— select —</option>
+                  <option>Order Placed</option>
+                  <option>Processing</option>
+                  <option>Packed</option>
+                  <option>Shipped</option>
+                  <option>Out for Delivery</option>
+                  <option>Delivered</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.4rem">Note (optional)</label>
+                <input id="trackNote" type="text" placeholder="e.g. Dispatched via BlueDart"
+                  style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.55rem .8rem;color:var(--white);font-family:var(--font-body);font-size:.8rem;outline:none"/>
+              </div>
+              <button onclick="updateTracking()" class="btn-primary" style="width:100%;justify-content:center">
+                Push Update
+              </button>
+              <div id="trackMsg" style="font-size:.75rem;text-align:center;min-height:1rem"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">Vend<span>◆</span>ra</div>
+      <div class="footer-copy">© 2026 Multi Vendor Marketplace</div>
+    </div>
+  </footer>
+
+  <script>
+    const cursorEl = document.getElementById('cursor');
+    const dot  = cursorEl.querySelector('.cursor-dot');
+    const ring = cursorEl.querySelector('.cursor-ring');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+    (function anim(){
+      dot.style.cssText=`left:${mx}px;top:${my}px`;
+      rx+=(mx-rx)*.13;ry+=(my-ry)*.13;
+      ring.style.cssText=`left:${rx}px;top:${ry}px`;
+      requestAnimationFrame(anim);
+    })();
+
+    const obs = new IntersectionObserver(entries=>{
+      entries.forEach((e,i)=>{
+        if(e.isIntersecting){
+          e.target.style.transitionDelay=(i*.06)+'s';
+          e.target.classList.add('in');
+          obs.unobserve(e.target);
+        }
+      });
+    },{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+    document.querySelectorAll('.stat-value').forEach(el=>{
+      const raw=el.textContent.replace(/[^\d]/g,'');
+      const num=parseInt(raw);
+      if(!num) return;
+      const prefix=el.querySelector('span')?'₹':'';
+      let start=0;
+      const dur=1200,step=16;
+      const t=setInterval(()=>{
+        start+=Math.ceil(num/(dur/step));
+        if(start>=num){start=num;clearInterval(t);}
+        el.innerHTML=prefix?`<span>${prefix}</span>${start.toLocaleString('en-IN')}`:start.toLocaleString('en-IN');
+      },step);
+    });
+
+    async function updateTracking() {
+      const orderId = document.getElementById('trackOrderId')?.value.trim();
+      const status  = document.getElementById('trackStatus')?.value;
+      const note    = document.getElementById('trackNote')?.value.trim();
+      const msg     = document.getElementById('trackMsg');
+
+      if (!orderId || !status) {
+        msg.style.color = '#e05';
+        msg.textContent = 'Order ID and status are required ❌';
+        return;
+      }
+
+      try {
+        const res  = await fetch('/vendor/update-tracking', {
+          method:      'PATCH',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ orderId, status, note }),
+        });
+        const data = await res.json();
+        msg.style.color = res.ok ? 'var(--green)' : '#e05';
+        msg.textContent = data.message;
+      } catch(err) {
+        console.error(err);
+        msg.textContent = 'Server error ❌';
+      }
+    }
+  </script>
+
+</body>
+</html>

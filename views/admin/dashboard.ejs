@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Dashboard — Vendra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <%- include('partials/style') %>
+</head>
+<body>
+  <%- include('partials/sidebar', { active: 'dashboard' }) %>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <span class="eyebrow">Overview</span>
+        <h1 class="page-title">Admin <em>Dashboard</em></h1>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value"><%= totalUsers %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏪</div>
+        <div class="stat-label">Total Vendors</div>
+        <div class="stat-value"><%= totalVendors %></div>
+      </div>
+      <div class="stat-card pending-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-value" style="color:var(--amber)"><%= pendingVendors %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value"><%= totalOrders %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">₹</div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value"><span style="color:var(--amber)">₹</span><%= totalRevenue.toLocaleString('en-IN') %></div>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <a href="/admin/vendors" class="ql-card">
+        <div class="ql-icon">🏪</div>
+        <div>
+          <div class="ql-title">Manage Vendors</div>
+          <div class="ql-sub"><%= pendingVendors %> pending approval</div>
+        </div>
+        <span class="ql-arrow">›</span>
+      </a>
+      <a href="/admin/users" class="ql-card">
+        <div class="ql-icon">👥</div>
+        <div>
+          <div class="ql-title">Manage Users</div>
+          <div class="ql-sub"><%= totalUsers %> registered</div>
+        </div>
+        <span class="ql-arrow">›</span>
+      </a>
+      <a href="/admin/orders" class="ql-card">
+        <div class="ql-icon">📦</div>
+        <div>
+          <div class="ql-title">All Orders</div>
+          <div class="ql-sub"><%= totalOrders %> total</div>
+        </div>
+        <span class="ql-arrow">›</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

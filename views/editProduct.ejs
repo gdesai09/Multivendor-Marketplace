@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Product — Vendra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg:#0d0b09;--surface:#141210;--card:#1a1714;--border:#2a2520;
+      --amber:#d4843a;--amber-lt:#e8a862;--amber-dk:#a85f1e;
+      --cream:#f0e8d8;--muted:#7a7068;--white:#f8f4ee;
+      --error:#e05050;--green:#4caf7d;
+      --font-display:'Cormorant Garamond',serif;
+      --font-body:'DM Sans',sans-serif;
+      --ease:cubic-bezier(.22,.68,0,1.2);
+    }
+    body { background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh;cursor:none; }
+    .cursor{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;}
+    .cursor-dot{width:7px;height:7px;background:var(--amber);border-radius:50%;transform:translate(-50%,-50%);}
+    .cursor-ring{position:absolute;top:0;left:0;width:32px;height:32px;border:1px solid rgba(212,132,58,.4);border-radius:50%;transform:translate(-50%,-50%);transition:width .3s var(--ease),height .3s var(--ease),border-color .25s;}
+    body:has(a:hover,button:hover,input:focus,select:focus) .cursor-ring{width:46px;height:46px;border-color:var(--amber);}
+    body::before{content:'';position:fixed;inset:0;z-index:0;opacity:.022;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+    ::-webkit-scrollbar{width:3px;}
+    ::-webkit-scrollbar-thumb{background:var(--amber);border-radius:2px;}
+
+    /* NAVBAR */
+    .navbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(13,11,9,.88);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
+    .nav-brand{font-family:var(--font-display);font-size:1.4rem;font-weight:600;color:var(--cream);text-decoration:none;letter-spacing:.02em;}
+    .nav-brand span{color:var(--amber);}
+    .nav-links{display:flex;align-items:center;gap:1.5rem;}
+    .nav-links a{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:var(--amber);}
+    .nav-user{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.5rem;}
+    .nav-user strong{color:var(--cream);}
+
+    /* PAGE */
+    .page{max-width:680px;margin:0 auto;padding:3.5rem 2rem;position:relative;z-index:1;}
+
+    .back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;margin-bottom:2rem;transition:color .2s;}
+    .back-link:hover{color:var(--amber);}
+
+    .page-eyebrow{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:.4rem;}
+    .page-title{font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3rem);font-weight:300;color:var(--cream);line-height:1;margin-bottom:2.5rem;}
+    .page-title em{font-style:italic;color:var(--amber);}
+
+    /* PREVIEW */
+    .img-preview-wrap{width:100%;height:220px;border-radius:10px;overflow:hidden;background:var(--surface);border:1px solid var(--border);margin-bottom:2rem;display:flex;align-items:center;justify-content:center;position:relative;}
+    .img-preview{width:100%;height:100%;object-fit:cover;display:block;}
+    .img-placeholder{color:var(--muted);font-size:2.5rem;}
+
+    /* FORM */
+    .form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;}
+    .field{margin-bottom:1.4rem;}
+    label{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;font-weight:500;}
+    .input-wrap{position:relative;}
+    .input-icon{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex;align-items:center;transition:color .2s;}
+    .input-wrap:focus-within .input-icon{color:var(--amber);}
+    input[type="text"],input[type="number"],select{
+      width:100%;padding:.75rem 1rem .75rem 2.6rem;
+      background:var(--surface);border:1px solid var(--border);border-radius:7px;
+      color:var(--white);font-family:var(--font-body);font-size:.88rem;outline:none;
+      transition:border-color .2s,box-shadow .2s,background .2s;
+    }
+    input::placeholder{color:var(--muted);}
+    input:focus,select:focus{border-color:rgba(212,132,58,.55);background:#1d1a16;box-shadow:0 0 0 3px rgba(212,132,58,.09);}
+    select option{background:var(--card);}
+
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+    .btn-submit{width:100%;padding:.9rem;background:var(--amber);color:var(--bg);border:none;border-radius:7px;font-family:var(--font-body);font-size:.82rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;margin-top:.4rem;transition:background .2s,transform .15s var(--ease),box-shadow .2s;box-shadow:0 6px 22px rgba(212,132,58,.22);position:relative;overflow:hidden;}
+    .btn-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-100%);transition:transform .5s;}
+    .btn-submit:hover{background:var(--amber-lt);transform:translateY(-2px);box-shadow:0 10px 30px rgba(212,132,58,.32);}
+    .btn-submit:hover::before{transform:translateX(100%);}
+
+    .btn-cancel{display:block;text-align:center;margin-top:.85rem;font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .btn-cancel:hover{color:var(--error);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .page{animation:fadeUp .65s var(--ease) both;}
+
+    @media(max-width:560px){.form-row{grid-template-columns:1fr;}.navbar{padding:1rem 1.2rem;}}
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+  <nav class="navbar">
+    <a href="/vendor" class="nav-brand">Vend<span>◆</span>ra</a>
+    <div class="nav-links">
+      <a href="/vendor">Dashboard</a>
+      <a href="/vendor/my-products">My Products</a>
+      <a href="/vendor/orders">Orders</a>
+    </div>
+    <div class="nav-user">
+      Hello, <strong><%= user?.shopName || user?.name || 'Vendor' %></strong>
+      &nbsp;·&nbsp;
+      <a href="/vendor/logout" style="color:var(--error);text-decoration:none;font-size:.75rem;">Logout</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <a href="/vendor/my-products" class="back-link">
+      ← Back to My Products
+    </a>
+
+    <span class="page-eyebrow">Inventory</span>
+    <h1 class="page-title">Edit <em>Product</em></h1>
+
+    <!-- IMAGE PREVIEW -->
+    <div class="img-preview-wrap" id="preview-wrap">
+      <% if (product.image) { %>
+        <img src="<%= product.image %>" alt="<%= product.name %>" class="img-preview" id="preview-img"
+             onerror="this.style.display='none';document.getElementById('preview-placeholder').style.display='block'" />
+        <div class="img-placeholder" id="preview-placeholder" style="display:none">📦</div>
+      <% } else { %>
+        <div class="img-placeholder" id="preview-placeholder">📦</div>
+        <img id="preview-img" style="display:none" class="img-preview" />
+      <% } %>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-card">
+      <form action="/vendor/edit-product/<%= product._id %>" method="POST">
+
+        <div class="field">
+          <label for="name">Product Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+              </svg>
+            </span>
+            <input type="text" id="name" name="name" value="<%= product.name %>" required placeholder="Product name" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="price">Price (₹)</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 8.25H9m6 3H9m3 6-3-3h1.5a3 3 0 1 0 0-6M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
+                </svg>
+              </span>
+              <input type="number" id="price" name="price" value="<%= product.price %>" required min="1" placeholder="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="category">Category</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/>
+                </svg>
+              </span>
+              <select id="category" name="category">
+                <% const cats = ['General','Electronics','Clothing','Food','Books','Home','Beauty','Sports','Toys','Other']; %>
+                <% cats.forEach(cat => { %>
+                  <option value="<%= cat %>" <%= product.category === cat ? 'selected' : '' %>><%= cat %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="image">Image URL</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+              </svg>
+            </span>
+            <input type="text" id="image" name="image" value="<%= product.image || '' %>"
+                   placeholder="https://example.com/image.jpg"
+                   oninput="updatePreview(this.value)" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">Save Changes</button>
+      </form>
+
+      <a href="/vendor/my-products" class="btn-cancel">Cancel — go back</a>
+    </div>
+
+  </div>
+
+  <script>
+    /* CURSOR */
+    const cursorEl = document.getElementById('cursor');
+    const dot  = cursorEl.querySelector('.cursor-dot');
+    const ring = cursorEl.querySelector('.cursor-ring');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function anim() {
+      dot.style.cssText  = `left:${mx}px;top:${my}px`;
+      rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+      ring.style.cssText = `left:${rx}px;top:${ry}px`;
+      requestAnimationFrame(anim);
+    })();
+
+    /* LIVE IMAGE PREVIEW */
+    function updatePreview(url) {
+      const img = document.getElementById('preview-img');
+      const placeholder = document.getElementById('preview-placeholder');
+      if (url) {
+        img.src = url;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        img.onerror = () => {
+          img.style.display = 'none';
+          placeholder.style.display = 'block';
+        };
+      } else {
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+      }
+    }
+  </script>
+
+</body>
+</html>
